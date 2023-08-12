@@ -1,17 +1,6 @@
-Reactive Storage
-===============
-<p align="center"><img src="./logo.svg" height="250px"></p>
+import type { Observable } from "rxjs";
+import { Signal } from "@angular/core";
 
-
-Wrapper around [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).  
-
-Allows to create databases and tables in both of them using a simple, Promise-based API.  
-
-Modifications of the data can be observed using RxJS Observables or Angular Signals.
-
-API
-===
-```ts
 export type ReactiveStorage = {
   /**
    * Returns value by the key
@@ -61,4 +50,3 @@ export type ReactiveStorage = {
    */
   dispose(): void;
 }
-```

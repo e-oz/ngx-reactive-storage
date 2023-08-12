@@ -1,0 +1,99 @@
+import { BehaviorSubject, Observable, shareReplay } from "rxjs";
+import { Signal, signal, WritableSignal } from "@angular/core";
+
+export class Observer {
+  private readonly observables = new Map<string, BehaviorSubject<unknown>>();
+  private readonly signals = new Map<string, WritableSignal<unknown>>();
+
+  /**
+   * Pushes new value to observable, sets signal value,
+   * if observable/signal was requested for this key.
+   */
+  public set(key: string, value: unknown) {
+    let obs = this.observables.get(key);
+    if (obs) {
+      obs.next(value);
+    }
+
+    let s = this.signals.get(key);
+    if (s) {
+      s.set(value);
+    }
+  }
+
+  /**
+   * Will only push a new value to the observable if
+   * the new value is not equal to the old one.
+   *
+   * Similar to `set()`, if no signal/observable
+   * was requested for this key, no actions will be done.
+   */
+  public fetched(key: string, value: unknown) {
+    let obs = this.observables.get(key);
+    if (obs) {
+      if (obs.getValue() !== value) {
+        obs.next(value);
+      }
+    }
+
+    let s = this.signals.get(key);
+    if (s) {
+      s.set(value);
+    }
+  }
+
+  /**
+   * Pushes `undefined` to the observable/signal related to this key,
+   * if such observable/signal was requested.
+   */
+  public removed(key: string) {
+    let obs = this.observables.get(key);
+    if (obs) {
+      obs.next(undefined);
+    }
+
+    let s = this.signals.get(key);
+    if (s) {
+      s.set(undefined);
+    }
+  }
+
+  /**
+   * Returns a hot observable (replay:1) and pushes the current value for this key.
+   * The key becomes "observed" and future modifications will be pushed
+   * to the returned observable.
+   */
+  public getObservable<T>(key: string, initialValue: unknown): Observable<T | undefined> {
+    let obs = this.observables.get(key);
+    if (!obs) {
+      obs = new BehaviorSubject<unknown>(undefined);
+      this.observables.set(key, obs);
+    }
+    if (initialValue !== null) {
+      obs.next(initialValue);
+    }
+    return obs.pipe(
+      shareReplay({ refCount: true, bufferSize: 1 })
+    ) as unknown as Observable<T | undefined>;
+  }
+
+  /**
+   * Returns a signal and sets the current value for this key.
+   * The key becomes "observed" and future modifications will be
+   * written to the returned signal.
+   */
+  public getSignal<T>(key: string, initialValue: unknown): Signal<T | undefined> {
+    let s = this.signals.get(key);
+    if (!s) {
+      s = signal(initialValue ?? undefined);
+      this.signals.set(key, s);
+    }
+    s.set(initialValue ?? undefined);
+    return s.asReadonly() as Signal<T | undefined>;
+  }
+
+  public dispose() {
+    this.observables.clear();
+    this.signals.clear();
+  }
+}
