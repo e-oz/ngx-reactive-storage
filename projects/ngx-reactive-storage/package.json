@@ -1,6 +1,23 @@
 {
   "name": "ngx-reactive-storage",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "license": "MIT",
+  "private": false,
+  "author": {
+    "name": "Evgeniy OZ",
+    "email": "normandiggs@gmail.com",
+    "url": "https://jamm.dev"
+  },
+  "repository": {
+    "url": "git+https://github.com/e-oz/ngx-reactive-storage.git"
+  },
+  "keywords": [
+    "angular",
+    "reactive",
+    "storage",
+    "indexeddb",
+    "localstorage"
+  ],
   "peerDependencies": {
     "@angular/core": "^16.2.0",
     "localforage": "^1.10.0",

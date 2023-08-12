@@ -1,6 +1,6 @@
 {
   "name": "ngx-reactive-storage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "author": {
     "name": "Evgeniy OZ",
@@ -22,7 +22,7 @@
     "build": "ng build",
     "test": "npx jest",
     "pub": "npm run pre && npm publish ./dist/ngx-reactive-storage",
-    "pre": "ng build && npx jest --clearCache && npm run test && npm publish ./dist/ngx-reactive-storage --dry-run",
+    "pre": "ng build && cp ./README.md ./dist/ngx-reactive-storage/README.md && npx jest --clearCache && npm run test && npm publish ./dist/ngx-reactive-storage --dry-run",
     "reinst": "rm -rf node_modules && rm -f package-lock.json && rm -rf dist && npm i && npm run pre"
   },
   "private": false,
