@@ -13,9 +13,9 @@ Modifications of the data can be observed using RxJS Observables or Angular Sign
 > Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
 
 ## Uses
-✳️ Angular 16 (Signals)
-✳️ RxJS 7 (Observables)
-✳️ localforage (IndexedDB)
+✳️ Angular 16 (Signals)  
+✳️ RxJS 7 (Observables)  
+✳️ localforage (IndexedDB)  
 
 ## Installation
 
