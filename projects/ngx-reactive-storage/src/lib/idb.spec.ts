@@ -1,5 +1,12 @@
 import { RxStorage } from './idb';
 import 'fake-indexeddb/auto';
+import { Observable } from "rxjs";
+
+function readObs<T = unknown>(obs: Observable<T>): T | undefined {
+  let v;
+  obs.subscribe((val) => v = val);
+  return v;
+}
 
 describe('IdbStorage', () => {
   let storage: RxStorage;
@@ -38,5 +45,28 @@ describe('IdbStorage', () => {
       test: string
     }>(key);
     expect(result).toEqual(value);
+  });
+
+  it('should return a signal and update it', async () => {
+    const key = 'testKey';
+    const value = 'testValue';
+    const s = storage.getSignal(key);
+    expect(s()).toStrictEqual(undefined);
+    await storage.set(key, value);
+    expect(s()).toStrictEqual(value);
+    await storage.remove(key);
+    expect(s()).toStrictEqual(undefined);
+  });
+
+  it('should return an observable and update it', async () => {
+    const key = 'testKey';
+    const value = 'testValue';
+    const obs = storage.getObservable(key);
+
+    expect(readObs(obs)).toStrictEqual(undefined);
+    await storage.set(key, value);
+    expect(readObs(obs)).toStrictEqual(value);
+    await storage.remove(key);
+    expect(readObs(obs)).toStrictEqual(undefined);
   });
 });

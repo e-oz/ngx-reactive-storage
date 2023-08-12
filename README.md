@@ -9,7 +9,7 @@ Allows to create databases and tables in both of them using a simple, Promise-ba
 
 Modifications of the data can be observed using RxJS Observables or Angular Signals.
 
-> [!IMPORTANT]
+> [!IMPORTANT]  
 > Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
 
 ## Uses
@@ -90,4 +90,24 @@ export type ReactiveStorage = {
    */
   dispose(): void;
 }
+```
+
+## What storage to use
+The recommended storage is IndexedDB, because it:  
+1. Is supported by every browser alive;
+2. Gives you gigabytes of space (60% of the disk in Chrome, 10Gb in Firefox, [etc.](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#other_web_technologies));
+3. Has native separation by databases and tables.
+
+But sometimes you need to read some data synchronously, before you render something.  
+That's when you need localStorage.  
+Using this library, you can use all the nice additions, and still read from localStorage synchronously, using observables or signals.  
+
+Example:
+```ts
+import { RxLocalStorage } from "ngx-reactive-storage";
+
+const storage = new RxLocalStorage('settings', 'db1');
+
+const colorScheme = storage.getSignal('color-scheme')();
+
 ```

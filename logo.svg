@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
 <svg
   width="211"
   height="183"
@@ -7,55 +6,91 @@
   id="reactive-storage-logo"
   xmlns="http://www.w3.org/2000/svg">
   <defs id="defs1"/>
-  <g id="layer1" transform="translate(-77.177325,-121.22986)">
+  <g id="reactive-storage-logo" transform="translate(-77.177325,-120.83298)">
     <path
       style="fill:#0c00d2;stroke-width:0.264583;stroke-miterlimit:3.4;stroke-dasharray:9.525, 0.529167, 0.264583, 0.529167;stroke-dashoffset:0.264583"
       id="path1"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 H 105 93.440173 l 5.779914,-10.0111 z"
       transform="translate(1.7883097e-7,-19.019136)">
-      <animate id="pulse" attributeName="fill" begin="1s;pulse6.end+700ms" dur="2700ms" from="#00E5FF" to="#0c00d2" />
+      <animate
+        id="pulse"
+        attributeName="fill"
+        begin="1s;pulse6.end+2700ms"
+        dur="2700ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.555625;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(1.155,0,0,1.155,-16.275,-45.374863)">
-      <animate id="pulse1" attributeName="stroke" begin="pulse.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,136.41462 6.6758,11.56283 6.6758,11.56282 H 105 91.6484 l 6.6758,-11.56282 z">
+      <animate
+        id="pulse1"
+        attributeName="stroke"
+        begin="pulse.begin+250ms"
+        dur="400ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.638969;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9-6"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(1.32825,0,0,1.32825,-34.46625,-74.905883)">
-      <animate id="pulse2" attributeName="stroke" begin="pulse1.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,134.17187 7.67717,13.29725 7.67717,13.29725 H 105 89.64566 l 7.677171,-13.29725 z">
+      <animate
+        id="pulse2"
+        attributeName="stroke"
+        begin="pulse1.begin+70ms"
+        dur="400ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.734815;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9-6-4"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(1.5274875,0,0,1.5274875,-55.386187,-108.78718)">
-      <animate id="pulse3" attributeName="stroke" begin="pulse2.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,131.67208 8.82874,15.29184 8.82876,15.29183 H 105 87.342509 l 8.828747,-15.29183 z">
+      <animate
+        id="pulse3"
+        attributeName="stroke"
+        begin="pulse2.begin+70ms"
+        dur="400ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.845037;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9-6-4-9"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(1.7566106,0,0,1.7566106,-79.444113,-147.6713)">
-      <animate id="pulse4" attributeName="stroke" begin="pulse3.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,128.87668 10.15305,17.58563 10.15307,17.5856 H 105 84.693885 l 10.153059,-17.5856 z">
+      <animate
+        id="pulse4"
+        attributeName="stroke"
+        begin="pulse3.begin+70ms"
+        dur="400ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481072;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.971815;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9-6-4-9-4"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(2.0201022,0,0,2.0201022,-107.11073,-192.30865)">
-      <animate id="pulse5" attributeName="stroke" begin="pulse4.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,125.60909 11.67601,20.22346 11.67603,20.22345 H 105 81.647969 l 11.676017,-20.22345 z">
+      <animate
+        id="pulse5"
+        attributeName="stroke"
+        begin="pulse4.begin+70ms"
+        dur="400ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:1.11756;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9-6-4-9-4-2"
-      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-      transform="matrix(2.3231175,0,0,2.3231175,-138.92734,-243.56225)">
-      <animate id="pulse6" attributeName="stroke" begin="pulse5.begin+400ms" dur="2700ms" from="#00E5FF" to="#0c00d2" />
+      d="m 105,121.95054 13.42741,23.25699 13.42743,23.25696 H 105 78.145161 L 91.57258,145.20753 Z">
+      <animate
+        id="pulse6"
+        attributeName="stroke"
+        begin="pulse5.begin+70ms"
+        dur="2700ms"
+        from="#00E5FF"
+        to="#0c00d2"/>
     </path>
   </g>
 </svg>
