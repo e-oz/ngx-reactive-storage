@@ -9,6 +9,35 @@ Allows to create databases and tables in both of them using a simple, Promise-ba
 
 Modifications of the data can be observed using RxJS Observables or Angular Signals.
 
+> [!IMPORTANT]
+> Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
+
+## Uses
+✳️ Angular 16 (Signals)
+✳️ RxJS 7 (Observables)
+✳️ localforage (IndexedDB)
+
+## Installation
+
+```bash
+npm i ngx-reactive-storage
+```
+
+```bash
+yarn add ngx-reactive-storage
+```
+
+## Usage
+
+```ts
+import { RxStorage } from "ngx-reactive-storage";
+
+const storage = new RxStorage();
+
+storage.set('hello', 'world!');
+```
+
+
 API
 ===
 ```ts

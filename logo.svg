@@ -1,169 +1,61 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="211"
-   height="183"
-   viewBox="0 0 55.827082 48.418749"
-   version="1.1"
-   id="svg1"
-   inkscape:version="1.3 (0e150ed, 2023-07-21)"
-   sodipodi:docname="logo.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     inkscape:zoom="0.47377375"
-     inkscape:cx="98.148114"
-     inkscape:cy="105.53561"
-     inkscape:window-width="1624"
-     inkscape:window-height="949"
-     inkscape:window-x="0"
-     inkscape:window-y="38"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1" />
-  <defs
-     id="defs1" />
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-77.177325,-121.22986)">
+  width="211"
+  height="183"
+  viewBox="0 0 55.827082 48.418749"
+  id="reactive-storage-logo"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs1"/>
+  <g id="layer1" transform="translate(-77.177325,-121.22986)">
     <path
-       sodipodi:type="star"
-       style="fill:#0c00d2;stroke-width:0.264583;stroke-miterlimit:3.4;stroke-dasharray:9.525, 0.529167, 0.264583, 0.529167;stroke-dashoffset:0.264583"
-       id="path1"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="1.3228346e-06"
-       inkscape:transform-center-y="-3.3370368"
-       transform="translate(1.7883097e-7,-19.019136)" />
+      style="fill:#0c00d2;stroke-width:0.264583;stroke-miterlimit:3.4;stroke-dasharray:9.525, 0.529167, 0.264583, 0.529167;stroke-dashoffset:0.264583"
+      id="path1"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="translate(1.7883097e-7,-19.019136)">
+      <animate id="pulse" attributeName="fill" begin="1s;pulse6.end+700ms" dur="2700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="1.5568415e-06"
-       inkscape:transform-center-y="-3.8542779"
-       transform="matrix(1.155,0,0,1.155,-16.275,-45.374863)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(1.155,0,0,1.155,-16.275,-45.374863)">
+      <animate id="pulse1" attributeName="stroke" begin="pulse.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9-6"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="1.8224668e-06"
-       inkscape:transform-center-y="-4.4324192"
-       transform="matrix(1.32825,0,0,1.32825,-34.46625,-74.905883)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9-6"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(1.32825,0,0,1.32825,-34.46625,-74.905883)">
+      <animate id="pulse2" attributeName="stroke" begin="pulse1.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9-6-4"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="1.6327507e-06"
-       inkscape:transform-center-y="-5.0972785"
-       transform="matrix(1.5274875,0,0,1.5274875,-55.386187,-108.78718)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9-6-4"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(1.5274875,0,0,1.5274875,-55.386187,-108.78718)">
+      <animate id="pulse3" attributeName="stroke" begin="pulse2.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9-6-4-9"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="4.4201144e-06"
-       inkscape:transform-center-y="-5.861872"
-       transform="matrix(1.7566106,0,0,1.7566106,-79.444113,-147.6713)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9-6-4-9"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(1.7566106,0,0,1.7566106,-79.444113,-147.6713)">
+      <animate id="pulse4" attributeName="stroke" begin="pulse3.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481072;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9-6-4-9-4"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="4.1319502e-06"
-       inkscape:transform-center-y="-6.7411464"
-       transform="matrix(2.0201022,0,0,2.0201022,-107.11073,-192.30865)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481072;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9-6-4-9-4"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(2.0201022,0,0,2.0201022,-107.11073,-192.30865)">
+      <animate id="pulse5" attributeName="stroke" begin="pulse4.begin+400ms" dur="700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
     <path
-       sodipodi:type="star"
-       style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
-       id="path1-9-6-4-9-4-2"
-       inkscape:flatsided="false"
-       sodipodi:sides="3"
-       sodipodi:cx="105"
-       sodipodi:cy="170.85617"
-       sodipodi:r1="13.348138"
-       sodipodi:r2="6.6740689"
-       sodipodi:arg1="-1.5707963"
-       sodipodi:arg2="-0.52359878"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
-       inkscape:transform-center-x="8.3078842e-06"
-       inkscape:transform-center-y="-7.7523192"
-       transform="matrix(2.3231175,0,0,2.3231175,-138.92734,-243.56225)" />
+      style="fill:none;stroke:#0c00d2;stroke-width:0.481061;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      id="path1-9-6-4-9-4-2"
+      d="m 105,157.50803 5.77991,10.01111 5.77992,10.0111 -11.55983,0 -11.559827,0 5.779914,-10.0111 z"
+      transform="matrix(2.3231175,0,0,2.3231175,-138.92734,-243.56225)">
+      <animate id="pulse6" attributeName="stroke" begin="pulse5.begin+400ms" dur="2700ms" from="#00E5FF" to="#0c00d2" />
+    </path>
   </g>
 </svg>

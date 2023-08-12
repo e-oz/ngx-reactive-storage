@@ -1,2 +1,3 @@
-### 1.0.2
+### v0.1.2
 
+Improve documentation.
