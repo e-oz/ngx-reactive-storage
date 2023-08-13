@@ -9,6 +9,8 @@ Allows to create databases and tables in both of them using a simple, Promise-ba
 
 Modifications of the data can be observed using RxJS Observables or Angular Signals.
 
+While observing a specific key, you will receive notifications about changes made not only in the current instance of the application but also in other tabs or windows.
+
 > [!IMPORTANT]  
 > Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
 
