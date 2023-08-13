@@ -15,7 +15,7 @@ Modifications of the data can be observed using RxJS Observables or Angular Sign
 ## Uses
 ✳️ Angular 16 (Signals)  
 ✳️ RxJS 7 (Observables)  
-✳️ localforage (IndexedDB)  
+✳️ localForage (IndexedDB)  
 
 ## Installation
 
@@ -98,9 +98,9 @@ The recommended storage is IndexedDB, because it:
 2. Gives you gigabytes of space (60% of the disk in Chrome, 10Gb in Firefox, [etc.](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#other_web_technologies));
 3. Has native separation by databases and tables.
 
-But sometimes you need to read some data synchronously, before you render something.  
-That's when you need localStorage.  
-Using this library, you can use all the nice additions, and still read from localStorage synchronously, using observables or signals.  
+localStorage gives just 5 MB of space, but sometimes you need to read some data synchronously before you render something.  
+
+Using this library, you can use all the nice additions, one API for both types of storages, and still read from localStorage synchronously when needed, using observables or signals.  
 
 Example:
 ```ts
