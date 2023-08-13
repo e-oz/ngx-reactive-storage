@@ -113,3 +113,13 @@ const storage = new RxLocalStorage('settings', 'db1');
 const colorScheme = storage.getSignal('color-scheme')();
 
 ```
+
+## Supported browsers
+* Chrome: v54+
+* Edge: v79+
+* Firefox: v38+
+* Safari: v15.4+
+* Opera: v41+
+* Chrome for Android: v115+
+* Firefox for Android: v115+
+* Safari iOS: 15.4+
