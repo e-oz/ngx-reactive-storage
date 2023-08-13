@@ -6,7 +6,7 @@
   id="reactive-storage-logo"
   xmlns="http://www.w3.org/2000/svg">
   <defs id="defs1"/>
-  <g id="reactive-storage-logo" transform="translate(-77.177325,-120.83298)">
+  <g id="g-reactive-storage-logo" transform="translate(-77.177325,-120.83298)">
     <path
       style="fill:#0c00d2;stroke-width:0.264583;stroke-miterlimit:3.4;stroke-dasharray:9.525, 0.529167, 0.264583, 0.529167;stroke-dashoffset:0.264583"
       id="path1"
@@ -21,9 +21,9 @@
         to="#0c00d2"/>
     </path>
     <path
-      style="fill:none;stroke:#0c00d2;stroke-width:0.555625;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
+      style="fill:none;stroke:#0c00d2;stroke-width:0.550069;stroke-miterlimit:3.4;stroke-dasharray:none;stroke-dashoffset:0.264545;stroke-opacity:1"
       id="path1-9"
-      d="m 105,136.41462 6.6758,11.56283 6.6758,11.56282 H 105 91.6484 l 6.6758,-11.56282 z">
+      d="m 105,136.52886 6.60904,11.4472 6.60904,11.44719 H 105 91.781916 l 6.609042,-11.44719 z">
       <animate
         id="pulse1"
         attributeName="stroke"

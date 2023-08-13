@@ -21,10 +21,12 @@ While observing a specific key, you will receive notifications about changes mad
 
 ## Installation
 
+[npm](https://www.npmjs.com/package/ngx-reactive-storage):  
 ```bash
 npm i ngx-reactive-storage
 ```
 
+Yarn:  
 ```bash
 yarn add ngx-reactive-storage
 ```
