@@ -2,6 +2,17 @@ import { RxStorage } from './idb';
 import 'fake-indexeddb/auto';
 import { Observable } from "rxjs";
 
+class BCMock {
+  addEventListener() {
+  }
+
+  postMessage() {
+  }
+}
+
+// @ts-ignore
+BroadcastChannel = BCMock;
+
 function readObs<T = unknown>(obs: Observable<T>): T | undefined {
   let v;
   obs.subscribe((val) => v = val);

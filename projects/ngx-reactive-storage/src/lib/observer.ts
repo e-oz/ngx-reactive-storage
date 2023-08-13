@@ -6,29 +6,10 @@ export class Observer {
   private readonly signals = new Map<string, WritableSignal<unknown>>();
 
   /**
-   * Pushes new value to observable, sets signal value,
-   * if observable/signal was requested for this key.
+   * Pushes new value to observable (if it's not equal to previous),
+   * sets signal value, if observable/signal was requested for this key.
    */
   public set(key: string, value: unknown) {
-    let obs = this.observables.get(key);
-    if (obs) {
-      obs.next(value);
-    }
-
-    let s = this.signals.get(key);
-    if (s) {
-      s.set(value);
-    }
-  }
-
-  /**
-   * Will only push a new value to the observable if
-   * the new value is not equal to the old one.
-   *
-   * Similar to `set()`, if no signal/observable
-   * was requested for this key, no actions will be done.
-   */
-  public fetched(key: string, value: unknown) {
     let obs = this.observables.get(key);
     if (obs) {
       if (obs.getValue() !== value) {

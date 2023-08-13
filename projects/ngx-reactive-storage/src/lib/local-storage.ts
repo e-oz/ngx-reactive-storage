@@ -20,7 +20,7 @@ export class RxLocalStorage implements ReactiveStorage {
         const key = this.unprefixed(event.key);
         if (key) {
           const value = event.newValue == null ? event.newValue : JSON.parse(event.newValue);
-          this.observer.fetched(key, value);
+          this.observer.set(key, value);
         }
       } catch (_) {
 
@@ -69,9 +69,7 @@ export class RxLocalStorage implements ReactiveStorage {
           resolve(str);
           return;
         }
-        const value = JSON.parse(str);
-        this.observer.fetched(key, value);
-        resolve(value);
+        resolve(JSON.parse(str));
       } catch (e) {
         reject(e);
       }
@@ -119,6 +117,7 @@ export class RxLocalStorage implements ReactiveStorage {
 
   public dispose() {
     this.observer.dispose();
+    this.observedKeys.clear();
     if (this.isListening) {
       try {
         window.removeEventListener('storage', this.listener);
