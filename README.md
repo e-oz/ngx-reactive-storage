@@ -97,12 +97,12 @@ export type ReactiveStorage = {
 ```
 
 ## What storage to use
-The recommended storage is IndexedDB, because it:  
+The recommended storage is **IndexedDB**, because it:  
 1. Is supported by every browser alive;
-2. Gives you gigabytes of space (60% of the disk in Chrome, 10Gb in Firefox, [etc.](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#other_web_technologies));
+2. Gives you gigabytes of space (60% of the disk in Chrome, 10 Gb in Firefox, [etc.](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria#other_web_technologies));
 3. Has native separation by databases and tables.
 
-localStorage gives just 5 MB of space, but sometimes you need to read some data synchronously before you render something.  
+**localStorage** is limited to just 5 Mb of space, but sometimes you need to read some data synchronously before you render something.  
 
 Using this library, you can use all the nice additions, one API for both types of storages, and still read from localStorage synchronously when needed, using observables or signals.  
 
@@ -124,4 +124,4 @@ const colorScheme = storage.getSignal('color-scheme')();
 * Opera: v41+
 * Chrome for Android: v115+
 * Firefox for Android: v115+
-* Safari iOS: 15.4+
+* Safari iOS: v15.4+
