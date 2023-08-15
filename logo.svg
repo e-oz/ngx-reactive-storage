@@ -15,7 +15,7 @@
       <animate
         id="pulse"
         attributeName="fill"
-        begin="mouseenter"
+        begin="1s;pulse6.end+2700ms"
         dur="2700ms"
         from="#00E5FF"
         to="#0c00d2"/>
