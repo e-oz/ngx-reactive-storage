@@ -15,7 +15,7 @@ While observing a specific key, you will receive notifications about changes mad
 > Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
 
 ## Uses
-✳️ Angular 16 (Signals)  
+✳️ Angular 16 or 17 (Signals)  
 ✳️ RxJS 7 (Observables)  
 ✳️ localForage (IndexedDB)  
 
