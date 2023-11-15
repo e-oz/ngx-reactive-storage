@@ -57,8 +57,8 @@ export class RxStorage implements ReactiveStorage {
     return obs;
   }
 
-  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined> {
-    const s = this.observer.getSignal<T>(key, options?.initialValue, options?.equal);
+  getSignal<T, N = undefined>(key: string, options?: SignalOptions<T, N>): Signal<T | N> {
+    const s = this.observer.getSignal<T, N>(key, options?.initialValue, options?.equal);
     this.get(key).catch();
     return s;
   }

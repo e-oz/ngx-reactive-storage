@@ -1,3 +1,6 @@
+### v1.0.2
+Better TypeScript types for `getSignal()` and `SignalOptions`.
+
 ### v1.0.1
 Method `getSignal()` now accepts `SignalOptions` as the second argument. This allows you to set the initial value and the equality check function.
 

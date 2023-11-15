@@ -47,7 +47,7 @@ export class RxLocalStorage implements ReactiveStorage {
     return this.observer.getObservable<T>(key, value);
   }
 
-  public getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined> {
+  public getSignal<T, N = undefined>(key: string, options?: SignalOptions<T, N>): Signal<T | N> {
     const str = localStorage.getItem(this.prefixed(key));
     let value: T | undefined;
     if (str !== null) {
@@ -57,7 +57,7 @@ export class RxLocalStorage implements ReactiveStorage {
       }
     }
     this.startListening(key);
-    return this.observer.getSignal<T>(key, value ?? options?.initialValue, options?.equal);
+    return this.observer.getSignal<T, N>(key, value ?? options?.initialValue, options?.equal);
   }
 
   public get<T = string>(key: string): Promise<T | null | undefined> {

@@ -63,14 +63,14 @@ export class Observer {
    * The key becomes "observed" and future modifications will be
    * written to the returned signal.
    */
-  public getSignal<T>(key: string, initialValue: unknown, equal?: ValueEqualityFn<T | undefined>): Signal<T | undefined> {
+  public getSignal<T, N = undefined>(key: string, initialValue: T | N | undefined, equal?: ValueEqualityFn<T | N | undefined>): Signal<T | N> {
     let s = this.signals.get(key);
     if (!s) {
-      s = signal((initialValue as T) ?? undefined, { equal });
+      s = signal<T | N | undefined>(initialValue, { equal });
       this.signals.set(key, s);
     }
     s.set(initialValue ?? undefined);
-    return s.asReadonly() as Signal<T | undefined>;
+    return s.asReadonly() as Signal<T | N>;
   }
 
   public dispose() {

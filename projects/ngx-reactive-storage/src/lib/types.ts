@@ -23,7 +23,7 @@ export type ReactiveStorage = {
    *
    * If localStorage is being used as the storage, the value will be pushed synchronously.
    */
-  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
+  getSignal<T, N = undefined>(key: string, options?: SignalOptions<T, N>): Signal<T | N>;
 
   /**
    * Set a key-value pair
@@ -51,7 +51,7 @@ export type ReactiveStorage = {
   dispose(): void;
 }
 
-export type SignalOptions<T = unknown> = {
-  initialValue?: unknown;
-  equal: ValueEqualityFn<T>;
+export type SignalOptions<T = unknown, N = T> = {
+  initialValue?: N;
+  equal?: ValueEqualityFn<T | N | undefined>;
 };
