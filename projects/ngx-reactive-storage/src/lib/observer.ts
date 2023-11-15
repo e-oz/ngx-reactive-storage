@@ -1,5 +1,5 @@
+import { Signal, signal, type ValueEqualityFn, WritableSignal } from "@angular/core";
 import { BehaviorSubject, Observable, shareReplay } from "rxjs";
-import { Signal, signal, WritableSignal } from "@angular/core";
 
 export class Observer {
   private readonly observables = new Map<string, BehaviorSubject<unknown>>();
@@ -63,10 +63,10 @@ export class Observer {
    * The key becomes "observed" and future modifications will be
    * written to the returned signal.
    */
-  public getSignal<T>(key: string, initialValue: unknown): Signal<T | undefined> {
+  public getSignal<T>(key: string, initialValue: unknown, equal?: ValueEqualityFn<T | undefined>): Signal<T | undefined> {
     let s = this.signals.get(key);
     if (!s) {
-      s = signal(initialValue ?? undefined);
+      s = signal((initialValue as T) ?? undefined, { equal });
       this.signals.set(key, s);
     }
     s.set(initialValue ?? undefined);

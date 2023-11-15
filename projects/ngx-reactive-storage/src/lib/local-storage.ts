@@ -1,7 +1,7 @@
 import { Signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import type { ReactiveStorage } from './types';
 import { Observer } from "./observer";
+import type { ReactiveStorage, SignalOptions } from './types';
 
 type Key = string;
 
@@ -47,7 +47,7 @@ export class RxLocalStorage implements ReactiveStorage {
     return this.observer.getObservable<T>(key, value);
   }
 
-  public getSignal<T>(key: string): Signal<T | undefined> {
+  public getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined> {
     const str = localStorage.getItem(this.prefixed(key));
     let value: T | undefined;
     if (str !== null) {
@@ -57,7 +57,7 @@ export class RxLocalStorage implements ReactiveStorage {
       }
     }
     this.startListening(key);
-    return this.observer.getSignal<T>(key, value);
+    return this.observer.getSignal<T>(key, value ?? options?.initialValue, options?.equal);
   }
 
   public get<T = string>(key: string): Promise<T | null | undefined> {

@@ -1,5 +1,5 @@
+import { Signal, type ValueEqualityFn } from "@angular/core";
 import type { Observable } from "rxjs";
-import { Signal } from "@angular/core";
 
 export type ReactiveStorage = {
   /**
@@ -23,7 +23,7 @@ export type ReactiveStorage = {
    *
    * If localStorage is being used as the storage, the value will be pushed synchronously.
    */
-  getSignal<T>(key: string): Signal<T | undefined>;
+  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
 
   /**
    * Set a key-value pair
@@ -50,3 +50,8 @@ export type ReactiveStorage = {
    */
   dispose(): void;
 }
+
+export type SignalOptions<T = unknown> = {
+  initialValue?: unknown;
+  equal: ValueEqualityFn<T>;
+};

@@ -1,8 +1,8 @@
 import { Signal } from '@angular/core';
-import { Observable } from 'rxjs';
-import type { ReactiveStorage } from './types';
 import * as localForage from 'localforage';
+import { Observable } from 'rxjs';
 import { Observer } from "./observer";
+import type { ReactiveStorage, SignalOptions } from './types';
 
 type KeyChange = {
   type: 'set' | 'remove';
@@ -57,8 +57,8 @@ export class RxStorage implements ReactiveStorage {
     return obs;
   }
 
-  getSignal<T>(key: string): Signal<T | undefined> {
-    const s = this.observer.getSignal<T>(key, undefined);
+  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined> {
+    const s = this.observer.getSignal<T>(key, options?.initialValue, options?.equal);
     this.get(key).catch();
     return s;
   }
