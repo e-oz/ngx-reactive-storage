@@ -23,13 +23,33 @@ export type ReactiveStorage = {
    *
    * If localStorage is being used as the storage, the value will be pushed synchronously.
    */
-  getSignal<T>(key: string, options?: {
-    equal?: ValueEqualityFn<T | undefined>;
+  getSignal<T>(key: string): Signal<T | undefined>;
+
+  getSignal<T>(key: string, options: {
+    equal: ValueEqualityFn<T | undefined>;
+  }): Signal<T | undefined>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: undefined,
+    equal: ValueEqualityFn<T | undefined>;
+  }): Signal<T | undefined>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: undefined,
   }): Signal<T | undefined>;
 
   getSignal<T>(key: string, options: {
     initialValue: T;
-    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal: ValueEqualityFn<T | undefined>;
+  }): Signal<T>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal: undefined;
   }): Signal<T>;
 
   /**
