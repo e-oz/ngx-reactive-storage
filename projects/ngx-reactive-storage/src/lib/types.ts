@@ -66,5 +66,5 @@ export type ReactiveStorage = {
 
 export type SignalOptions<T = unknown> = {
   initialValue?: unknown;
-  equal: ValueEqualityFn<T>;
+  equal?: ValueEqualityFn<T>;
 };

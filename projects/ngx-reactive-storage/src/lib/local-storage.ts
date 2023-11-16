@@ -47,38 +47,36 @@ export class RxLocalStorage implements ReactiveStorage {
     return this.observer.getObservable<T>(key, value);
   }
 
-  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
-
   getSignal<T>(key: string): Signal<T | undefined>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     equal: ValueEqualityFn<T | undefined>;
   }): Signal<T | undefined>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     initialValue: undefined,
     equal: ValueEqualityFn<T | undefined>;
   }): Signal<T | undefined>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     initialValue: undefined,
   }): Signal<T | undefined>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     initialValue: T;
   }): Signal<T>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     initialValue: T;
     equal: ValueEqualityFn<T | undefined>;
   }): Signal<T>;
 
-  getSignal<T>(key: string, options: {
+  getSignal<T>(key: string, options: SignalOptions & {
     initialValue: T;
     equal: undefined;
   }): Signal<T>;
 
-  getSignal<T>(key: string, options?: {
+  getSignal<T>(key: string, options?: SignalOptions & {
     initialValue?: T;
     equal?: ValueEqualityFn<T | undefined>;
   }): Signal<T> {
@@ -94,13 +92,32 @@ export class RxLocalStorage implements ReactiveStorage {
     return this.observer.getSignal<T>(key, value, options?.equal);
   }
 
-  getWritableSignal<T>(key: string, options?: SignalOptions): WritableSignal<T | undefined>;
   getWritableSignal<T>(key: string): WritableSignal<T | undefined>;
-  getWritableSignal<T>(key: string, options: { equal: ValueEqualityFn<T | undefined> }): WritableSignal<T | undefined>;
-  getWritableSignal<T>(key: string, options: { initialValue: T }): WritableSignal<T>;
-  getWritableSignal<T>(key: string, options: { initialValue: T, equal: ValueEqualityFn<T | undefined> }): WritableSignal<T>;
 
-  getWritableSignal<T>(key: string, options?: {
+  getWritableSignal<T>(key: string, options: SignalOptions & {
+    initialValue: undefined,
+    equal: ValueEqualityFn<T | undefined>;
+  }): WritableSignal<T | undefined>;
+
+  getWritableSignal<T>(key: string, options: SignalOptions & {
+    initialValue: undefined,
+  }): WritableSignal<T | undefined>;
+
+  getWritableSignal<T>(key: string, options: SignalOptions & {
+    initialValue: T;
+  }): WritableSignal<T>;
+
+  getWritableSignal<T>(key: string, options: SignalOptions & {
+    initialValue: T;
+    equal: ValueEqualityFn<T | undefined>;
+  }): WritableSignal<T>;
+
+  getWritableSignal<T>(key: string, options: SignalOptions & {
+    initialValue: T;
+    equal: undefined;
+  }): WritableSignal<T>;
+
+  getWritableSignal<T>(key: string, options?: SignalOptions & {
     initialValue?: T;
     equal?: ValueEqualityFn<T | undefined>;
   }): WritableSignal<T> {
