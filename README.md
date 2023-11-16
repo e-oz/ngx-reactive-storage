@@ -67,7 +67,19 @@ export type ReactiveStorage = {
    *
    * If localStorage is being used as the storage, the value will be pushed synchronously.
    */
-  getSignal<T>(key: string): Signal<T | undefined>;
+  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
+
+
+  /**
+   * Returns a signal with the current value for this key.
+   * The key becomes "observed" and future modifications will be
+   * written to the returned signal.
+   *
+   * The usage of the `set()` and `update()` methods of this signal will also update the storage key.
+   *
+   * If localStorage is being used as the storage, the value will be pushed synchronously.
+   */
+  getWritableSignal<T>(key: string, options?: SignalOptions): WritableSignal<T | undefined>;
 
   /**
    * Set a key-value pair

@@ -1,3 +1,6 @@
+### v1.2.1
+Add info about `getWritableSignal()` to README.
+
 ### v1.2.0
 Method `getWritableSignal()` will not write initial value to the storage anymore.
 
