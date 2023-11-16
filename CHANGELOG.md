@@ -1,3 +1,6 @@
+### v1.1.2
+Fix: Do not emit an observable and signal if no value is found during the initial read in the storage.
+
 ### v1.1.1
 Fix types in functions overloading.
 
