@@ -1,3 +1,6 @@
+### v1.2.0
+Method `getWritableSignal()` will not write initial value to the storage anymore.
+
 ### v1.1.2
 Fix: Do not emit an observable and signal if no value is found during the initial read in the storage.
 

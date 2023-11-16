@@ -32,7 +32,6 @@ export type ReactiveStorage = {
    * written to the returned signal.
    *
    * The usage of the `set()` and `update()` methods of this signal will also update the storage key.
-   * If `options.initialValue` is set, it will be written to the storage first.
    *
    * If localStorage is being used as the storage, the value will be pushed synchronously.
    */

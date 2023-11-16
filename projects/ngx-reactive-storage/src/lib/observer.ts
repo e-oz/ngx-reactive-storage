@@ -109,9 +109,6 @@ export class Observer {
       }
       this.signals.set(key, s);
     }
-    if (initialValue !== undefined) {
-      s.set(initialValue);
-    }
     return s;
   }
 
