@@ -1,7 +1,13 @@
 import { Signal, signal, type ValueEqualityFn, WritableSignal } from "@angular/core";
 import { BehaviorSubject, Observable, shareReplay } from "rxjs";
+import type { ReactiveStorage } from "./types";
+
+let skipStorageSet = false;
 
 export class Observer {
+  constructor(private readonly storage: ReactiveStorage) {
+  }
+
   private readonly observables = new Map<string, BehaviorSubject<unknown>>();
   private readonly signals = new Map<string, WritableSignal<unknown>>();
 
@@ -19,7 +25,9 @@ export class Observer {
 
     let s = this.signals.get(key);
     if (s) {
+      skipStorageSet = true;
       s.set(value);
+      skipStorageSet = false;
     }
   }
 
@@ -72,8 +80,39 @@ export class Observer {
       s = signal<T | undefined>(initialValue, { equal });
       this.signals.set(key, s);
     }
-    s.set(initialValue);
+    if (initialValue !== undefined) {
+      s.set(initialValue);
+    }
     return s.asReadonly();
+  }
+
+  public getWritableSignal<T>(key: string, initialValue: T | undefined, equal?: ValueEqualityFn<T | undefined>): WritableSignal<T>;
+  public getWritableSignal<T>(key: string, initialValue: undefined, equal?: ValueEqualityFn<T | undefined>): WritableSignal<T | undefined>;
+
+  public getWritableSignal<T>(key: string, initialValue?: T, equal?: ValueEqualityFn<T | undefined>): WritableSignal<T> | WritableSignal<T | undefined> {
+    let s = this.signals.get(key) as WritableSignal<T | undefined>;
+    if (!s) {
+      s = signal<T | undefined>(initialValue, { equal });
+      const srcSet = s.set;
+      s.set = (value: T) => {
+        if (!skipStorageSet) {
+          this.storage.set(key, value).catch(console?.error);
+        }
+        srcSet(value);
+      }
+      s.update = (updateFn: (value: T | undefined) => T | undefined) => {
+        const value = updateFn(s());
+        if (!skipStorageSet) {
+          this.storage.set(key, value).catch(console?.error);
+        }
+        srcSet(value);
+      }
+      this.signals.set(key, s);
+    }
+    if (initialValue !== undefined) {
+      s.set(initialValue);
+    }
+    return s;
   }
 
   public dispose() {

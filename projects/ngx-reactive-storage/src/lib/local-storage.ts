@@ -1,7 +1,7 @@
-import { Signal, type ValueEqualityFn } from '@angular/core';
+import { Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Observer } from "./observer";
-import type { ReactiveStorage } from './types';
+import type { ReactiveStorage, SignalOptions } from './types';
 
 type Key = string;
 
@@ -11,7 +11,7 @@ export class RxLocalStorage implements ReactiveStorage {
   private readonly tableName: string;
   private readonly dbName: string;
   private readonly delimiter: string;
-  private readonly observer = new Observer();
+  private readonly observer = new Observer(this);
   private isListening = false;
   private observedKeys = new Set<PrefixedKey>();
   private readonly listener = (event: StorageEvent) => {
@@ -46,6 +46,8 @@ export class RxLocalStorage implements ReactiveStorage {
     this.startListening(key);
     return this.observer.getObservable<T>(key, value);
   }
+
+  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
 
   getSignal<T>(key: string): Signal<T | undefined>;
 
@@ -90,6 +92,28 @@ export class RxLocalStorage implements ReactiveStorage {
     }
     this.startListening(key);
     return this.observer.getSignal<T>(key, value, options?.equal);
+  }
+
+  getWritableSignal<T>(key: string, options?: SignalOptions): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string, options: { equal: ValueEqualityFn<T | undefined> }): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string, options: { initialValue: T }): WritableSignal<T>;
+  getWritableSignal<T>(key: string, options: { initialValue: T, equal: ValueEqualityFn<T | undefined> }): WritableSignal<T>;
+
+  getWritableSignal<T>(key: string, options?: {
+    initialValue?: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): WritableSignal<T> {
+    const str = localStorage.getItem(this.prefixed(key));
+    let value = options?.initialValue;
+    if (str !== null) {
+      try {
+        value = JSON.parse(str);
+      } catch (_) {
+      }
+    }
+    this.startListening(key);
+    return this.observer.getWritableSignal<T>(key, value, options?.equal);
   }
 
   get<T = string>(key: string): Promise<T | null | undefined> {

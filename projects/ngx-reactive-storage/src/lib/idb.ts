@@ -1,8 +1,8 @@
-import { Signal, type ValueEqualityFn } from '@angular/core';
+import { Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
 import * as localForage from 'localforage';
 import { Observable } from 'rxjs';
 import { Observer } from "./observer";
-import type { ReactiveStorage } from './types';
+import type { ReactiveStorage, SignalOptions } from './types';
 
 type KeyChange = {
   type: 'set' | 'remove';
@@ -14,7 +14,7 @@ export class RxStorage implements ReactiveStorage {
   private readonly store: LocalForage;
   private readonly dbName: string;
   private readonly tableName: string;
-  private readonly observer = new Observer();
+  private readonly observer = new Observer(this);
   private readonly channel: BroadcastChannel;
   private readonly listener = (event: MessageEvent) => {
     if (event.data && typeof event.data === 'object') {
@@ -57,6 +57,8 @@ export class RxStorage implements ReactiveStorage {
     return obs;
   }
 
+  getSignal<T>(key: string, options?: SignalOptions): Signal<T | undefined>;
+
   getSignal<T>(key: string): Signal<T | undefined>;
 
   getSignal<T>(key: string, options: {
@@ -91,6 +93,21 @@ export class RxStorage implements ReactiveStorage {
     equal?: ValueEqualityFn<T | undefined>;
   }): Signal<T> {
     const s = this.observer.getSignal<T>(key, options?.initialValue, options?.equal);
+    this.get(key).catch();
+    return s;
+  }
+
+  getWritableSignal<T>(key: string, options?: SignalOptions): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string, options: { equal: ValueEqualityFn<T | undefined> }): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string, options: { initialValue: T }): WritableSignal<T>;
+  getWritableSignal<T>(key: string, options: { initialValue: T, equal: ValueEqualityFn<T | undefined> }): WritableSignal<T>;
+
+  getWritableSignal<T>(key: string, options?: {
+    initialValue?: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): WritableSignal<T> {
+    const s = this.observer.getWritableSignal<T>(key, options?.initialValue, options?.equal);
     this.get(key).catch();
     return s;
   }

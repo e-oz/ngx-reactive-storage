@@ -1,3 +1,6 @@
+### v1.1.0
+New method: `getWritableSignal()` - returns a signal that you can modify using `set()` or `update()` methods, and these modifications will also update the storage key. 
+
 ### v1.0.4
 More types overloading for `getSignal()` 🤦
 

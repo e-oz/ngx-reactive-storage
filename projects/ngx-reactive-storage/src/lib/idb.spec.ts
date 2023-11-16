@@ -1,6 +1,6 @@
+import { Observable } from "rxjs";
 import { RxStorage } from './idb';
 import 'fake-indexeddb/auto';
-import { Observable } from "rxjs";
 
 class BCMock {
   addEventListener() {
@@ -79,5 +79,29 @@ describe('IdbStorage', () => {
     expect(readObs(obs)).toStrictEqual(value);
     await storage.remove(key);
     expect(readObs(obs)).toStrictEqual(undefined);
+  });
+
+  it('should update a key in the storage when WritableSignal is updated', async () => {
+    const key = 'testKey';
+    const value = 'testValue';
+    const initValue = 'initial value';
+    const newValue = 'new value';
+
+    const ws = storage.getWritableSignal<string>(key, { initialValue: initValue });
+    expect(ws()).toStrictEqual(initValue);
+
+    ws.set(value);
+    expect(ws()).toStrictEqual(value);
+    expect(await storage.get(key)).toStrictEqual(value);
+
+    ws.update((val) => {
+      expect(val).toStrictEqual(value);
+      return newValue;
+    });
+
+    expect(ws()).toStrictEqual(newValue);
+    expect(await storage.get(key)).toStrictEqual(newValue);
+    await storage.remove(key);
+    expect(ws()).toStrictEqual(undefined);
   });
 });
