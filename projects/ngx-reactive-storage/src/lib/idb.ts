@@ -1,8 +1,8 @@
-import { Signal } from '@angular/core';
+import { Signal, type ValueEqualityFn } from '@angular/core';
 import * as localForage from 'localforage';
 import { Observable } from 'rxjs';
 import { Observer } from "./observer";
-import type { ReactiveStorage, SignalOptions } from './types';
+import type { ReactiveStorage } from './types';
 
 type KeyChange = {
   type: 'set' | 'remove';
@@ -57,8 +57,20 @@ export class RxStorage implements ReactiveStorage {
     return obs;
   }
 
-  getSignal<T, N = undefined>(key: string, options?: SignalOptions<T, N>): Signal<T | N> {
-    const s = this.observer.getSignal<T, N>(key, options?.initialValue, options?.equal);
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T>;
+
+  getSignal<T>(key: string, options?: {
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T | undefined>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T> {
+    const s = this.observer.getSignal<T>(key, options?.initialValue, options?.equal);
     this.get(key).catch();
     return s;
   }

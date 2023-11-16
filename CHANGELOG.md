@@ -1,3 +1,6 @@
+### v1.0.3
+Better TypeScript types for `getSignal()`, remove `SignalOptions` type (was not part of public API).
+
 ### v1.0.2
 Better TypeScript types for `getSignal()` and `SignalOptions`.
 

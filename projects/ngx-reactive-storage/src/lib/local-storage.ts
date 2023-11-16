@@ -1,7 +1,7 @@
-import { Signal } from '@angular/core';
+import { Signal, type ValueEqualityFn } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Observer } from "./observer";
-import type { ReactiveStorage, SignalOptions } from './types';
+import type { ReactiveStorage } from './types';
 
 type Key = string;
 
@@ -34,7 +34,7 @@ export class RxLocalStorage implements ReactiveStorage {
     this.tableName = tableName || 'table';
   }
 
-  public getObservable<T>(key: string): Observable<T | undefined> {
+  getObservable<T>(key: string): Observable<T | undefined> {
     const str = localStorage.getItem(this.prefixed(key));
     let value: T | undefined;
     if (str !== null) {
@@ -47,9 +47,21 @@ export class RxLocalStorage implements ReactiveStorage {
     return this.observer.getObservable<T>(key, value);
   }
 
-  public getSignal<T, N = undefined>(key: string, options?: SignalOptions<T, N>): Signal<T | N> {
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T>;
+
+  getSignal<T>(key: string, options?: {
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T | undefined>;
+
+  getSignal<T>(key: string, options: {
+    initialValue: T;
+    equal?: ValueEqualityFn<T | undefined>;
+  }): Signal<T> {
     const str = localStorage.getItem(this.prefixed(key));
-    let value: T | undefined;
+    let value = options?.initialValue;
     if (str !== null) {
       try {
         value = JSON.parse(str);
@@ -57,10 +69,10 @@ export class RxLocalStorage implements ReactiveStorage {
       }
     }
     this.startListening(key);
-    return this.observer.getSignal<T, N>(key, value ?? options?.initialValue, options?.equal);
+    return this.observer.getSignal<T>(key, value, options?.equal);
   }
 
-  public get<T = string>(key: string): Promise<T | null | undefined> {
+  get<T = string>(key: string): Promise<T | null | undefined> {
     return new Promise((resolve, reject) => {
       try {
         const str = localStorage.getItem(this.prefixed(key));
@@ -76,7 +88,7 @@ export class RxLocalStorage implements ReactiveStorage {
     });
   }
 
-  public getKeys(): Promise<string[]> {
+  getKeys(): Promise<string[]> {
     return Promise.resolve(
       Object.keys(localStorage).map(
         (k) => this.unprefixed(k)
@@ -84,7 +96,7 @@ export class RxLocalStorage implements ReactiveStorage {
     );
   }
 
-  public remove(key: string): Promise<void> {
+  remove(key: string): Promise<void> {
     try {
       localStorage.removeItem(this.prefixed(key));
       this.observer.removed(key);
@@ -94,7 +106,7 @@ export class RxLocalStorage implements ReactiveStorage {
     }
   }
 
-  public set(key: string, value: unknown): Promise<void> {
+  set(key: string, value: unknown): Promise<void> {
     try {
       const v = JSON.stringify(value);
       localStorage.setItem(this.prefixed(key), v);
@@ -105,7 +117,7 @@ export class RxLocalStorage implements ReactiveStorage {
     }
   }
 
-  public clear(): Promise<void> {
+  clear(): Promise<void> {
     return new Promise((resolve) => {
       this.getKeys().then((keys) => {
         const requests: Promise<void>[] = [];
@@ -115,7 +127,7 @@ export class RxLocalStorage implements ReactiveStorage {
     });
   }
 
-  public dispose() {
+  dispose() {
     this.observer.dispose();
     this.observedKeys.clear();
     if (this.isListening) {
