@@ -48,11 +48,11 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser-esbuild",
           "options": {
             "outputPath": "docs",
             "index": "projects/docs/src/index.html",
-            "browser": "projects/docs/src/main.ts",
+            "main": "projects/docs/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
