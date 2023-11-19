@@ -51,7 +51,7 @@
           "builder": "@angular-devkit/build-angular:browser-esbuild",
           "options": {
             "outputPath": "docs",
-            "baseHref": "./ngx-reactive-storage/",
+            "baseHref": "/ngx-reactive-storage/",
             "index": "projects/docs/src/index.html",
             "main": "projects/docs/src/main.ts",
             "polyfills": [
