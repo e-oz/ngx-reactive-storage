@@ -1,0 +1,19 @@
+<mat-slide-toggle [checked]="$toggle()" (change)="$toggle.set($event.checked)">Toggle me!</mat-slide-toggle>
+
+<mat-slider [min]="0" [max]="100" [step]="1">
+  <input matSliderThumb [ngModel]="$slider()" (ngModelChange)="$slider.set($event)"/>
+</mat-slider>
+
+<mat-accordion>
+  <mat-expansion-panel
+    [hideToggle]="true"
+    [expanded]="$expanded()"
+    (expandedChange)="$expanded.set($event)">
+
+    <mat-expansion-panel-header>
+      <mat-panel-title>Expand me!</mat-panel-title>
+    </mat-expansion-panel-header>
+    <p>Magic of Reactive Storage!</p>
+  </mat-expansion-panel>
+
+</mat-accordion>

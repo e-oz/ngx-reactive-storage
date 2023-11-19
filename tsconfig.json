@@ -6,7 +6,8 @@
     "paths": {
       "ngx-reactive-storage": [
         "dist/ngx-reactive-storage"
-      ]
+      ],
+      "@oz/reactive-storage": ["projects/ngx-reactive-storage/src/lib/index.ts"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,

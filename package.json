@@ -27,7 +27,10 @@
   },
   "private": false,
   "dependencies": {
+    "@angular/cdk": "^17.0.1",
     "@angular/core": "^17.0.3",
+    "@angular/material": "^17.0.1",
+    "@angular/platform-browser": "^17.0.3",
     "localforage": "^1.10.0",
     "rxjs": "^7.8.1"
   },

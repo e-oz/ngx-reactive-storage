@@ -108,6 +108,9 @@ export type ReactiveStorage = {
 }
 ```
 
+https://user-images.githubusercontent.com/526352/284077145-51b438e0-e0e7-416d-b38d-d55449983793.mov
+
+
 ## What storage to use
 The recommended storage is **IndexedDB**, because it:  
 1. Is supported by every browser alive;
