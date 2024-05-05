@@ -134,7 +134,7 @@ import { RxLocalStorage } from "ngx-reactive-storage";
 
 const storage = new RxLocalStorage('settings', 'db1');
 
-const colorScheme = storage.getSignal<ColorSchema>('color-schema')();
+const colorSchema = storage.getSignal<ColorSchema>('color-schema')();
 
 ```
 
