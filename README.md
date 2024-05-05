@@ -39,6 +39,13 @@ import { RxStorage } from "ngx-reactive-storage";
 const storage = new RxStorage();
 
 storage.set('hello', 'world!');
+
+type ColorSchema = {
+	contrast: 'low' | 'medium' | 'high';
+	name: string;
+};
+const value = { contrast: 'low', name: 'black' } satisfies My;
+storage.set<ColorSchema>('color-scheme', value);
 ```
 
 
@@ -84,7 +91,7 @@ export type ReactiveStorage = {
   /**
    * Set a key-value pair
    */
-  set(key: string, value: unknown): Promise<void>;
+  set<T>(key: string, value: T): Promise<void>;
 
   /**
    * Removes a key
@@ -127,7 +134,7 @@ import { RxLocalStorage } from "ngx-reactive-storage";
 
 const storage = new RxLocalStorage('settings', 'db1');
 
-const colorScheme = storage.getSignal('color-scheme')();
+const colorScheme = storage.getSignal<ColorSchema>('color-scheme')();
 
 ```
 
