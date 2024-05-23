@@ -27,6 +27,7 @@
   },
   "private": false,
   "dependencies": {
+    "@angular/common": "^18.0.0",
     "@angular/cdk": "^18.0.0",
     "@angular/core": "^18.0.0",
     "@angular/material": "^18.0.0",
@@ -45,6 +46,7 @@
     "jest-preset-angular": "^14.1.0",
     "ng-packagr": "^18.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "~5.4.5"
+    "typescript": "~5.4.5",
+    "zone.js": "~0.14.6"
   }
 }
