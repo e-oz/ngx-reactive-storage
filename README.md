@@ -5,18 +5,19 @@ Reactive Storage
 
 Wrapper around [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).  
 
-Allows to create databases and tables in both of them using a simple, Promise-based API.  
+Allows to create databases and tables in both of them using a simple API.  
 
 Modifications of the data can be observed using RxJS Observables or Angular Signals.
 
-While observing a specific key, you will receive notifications about changes made not only in the current instance of the application but also in other tabs or windows.
+> [!IMPORTANT]
+> While observing a specific key, you will receive notifications about changes made not only in the current instance of the application but also in other tabs or windows. 
+> It opens a lot of interesting opportunities for data synchronization across tabs and windows.
 
-> [!IMPORTANT]  
-> Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
+Observables and signals will be created only upon demand, ensuring that no resources are wasted for keys that are not being observed.
 
 ## Uses
-✳️ Angular 16 or 17 (Signals)  
-✳️ RxJS 7 (Observables)  
+✳️ Angular v16+ (Signals)  
+✳️ RxJS v7+ (Observables)  
 ✳️ localForage (IndexedDB)  
 
 ## Installation
