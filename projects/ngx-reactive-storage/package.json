@@ -1,6 +1,6 @@
 {
   "name": "ngx-reactive-storage",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "MIT",
   "private": false,
   "author": {
@@ -19,7 +19,7 @@
     "localstorage"
   ],
   "peerDependencies": {
-    "@angular/core": "^16 || ^17",
+    "@angular/core": "^16 || ^17 || ^18",
     "localforage": "^1.10.0",
     "rxjs": "^7.8.1"
   },

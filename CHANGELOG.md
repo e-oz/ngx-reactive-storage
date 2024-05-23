@@ -1,3 +1,6 @@
+### v1.2.2
+Angular 18 is now supported.
+
 ### v1.2.1
 Add info about `getWritableSignal()` to README.
 
