@@ -1,3 +1,16 @@
+### v2.0.0 (Pre-release) 
+#### Breaking changes:
+* TypeScript version 5.6+ is required. 
+
+This library still works with Angular v16+, but if you use the strict peer dependencies setting (enabled by default) in your package manager, TypeScript version 5.6+ is only supported by Angular v19.
+
+This is caused by a different method of importing the localForge library, and this method is required for SSR support.
+
+#### New features:
+* SSR is now supported 🎉
+
+You no longer need to wrap storage initialization in `afterNextRender()`. If you require SSR support, you can do so by providing an `Injector` instance in the constructor. If SSR support is not needed in your app, no changes are required.
+
 ### v1.2.2
 Angular 18 is now supported.
 

@@ -1,7 +1,8 @@
-import { Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
-import * as localForage from 'localforage';
-import { Observable } from 'rxjs';
-import { Observer } from "./observer";
+import type { Injector } from '@angular/core';
+import { afterNextRender, isDevMode, type Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
+import localforage from 'localforage';
+import type { Observable } from 'rxjs';
+import { Observer } from './observer';
 import type { ReactiveStorage, SignalOptions } from './types';
 
 type KeyChange = {
@@ -11,7 +12,7 @@ type KeyChange = {
 };
 
 export class RxStorage implements ReactiveStorage {
-  private readonly store: LocalForage;
+  private storage?: LocalForage;
   private readonly dbName: string;
   private readonly tableName: string;
   private readonly observer = new Observer(this);
@@ -33,23 +34,33 @@ export class RxStorage implements ReactiveStorage {
   /**
    * @param tableName - name of the table in DB. Use name of the feature or the component when possible.
    * @param dbName - DB name. Use application name when possible.
+   * @param injector - pass an Injector instance to make it work with SSR
    */
-  constructor(tableName: string = 'table', dbName: string = 'db') {
+  constructor(tableName: string = 'table', dbName: string = 'db', private injector?: Injector) {
     this.tableName = tableName || 'table';
     this.dbName = dbName || 'db';
-    this.store = localForage.createInstance({ name: this.dbName, storeName: this.tableName });
     this.channel = new BroadcastChannel(this.dbName + '.' + this.tableName);
     this.channel.addEventListener('message', this.listener, { passive: true });
+
+    if (typeof window === 'undefined' || typeof window.indexedDB === 'undefined') {
+      afterNextRender(() => {
+        this.storage = localforage.createInstance({ name: this.dbName, storeName: this.tableName });
+      }, { injector: this.injector });
+    } else {
+      this.storage = localforage.createInstance({ name: this.dbName, storeName: this.tableName });
+    }
   }
 
   get<T = string>(key: string): Promise<T | null | undefined> {
     return new Promise((resolve, reject) => {
-      this.store.getItem<T>(key).then((value) => {
-        if (value !== null) {
-          this.observer.set(key, value);
-        }
-        resolve(value);
-      }).catch(e => reject(e));
+      this.whenStorageIsReady((storage) => {
+        storage.getItem<T>(key).then((value) => {
+          if (value !== null) {
+            this.observer.set(key, value);
+          }
+          resolve(value);
+        }).catch(e => reject(e));
+      });
     });
   }
 
@@ -129,41 +140,53 @@ export class RxStorage implements ReactiveStorage {
 
   set(key: string, value: unknown): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.store.setItem(key, value).then(() => {
-        this.observer.set(key, value);
-        this.broadcastChange({
-          type: 'set',
-          key,
-          value
-        });
-        resolve();
-      }).catch(reject);
+      this.whenStorageIsReady((storage) => {
+        storage.setItem(key, value).then(() => {
+          this.observer.set(key, value);
+          this.broadcastChange({
+            type: 'set',
+            key,
+            value
+          });
+          resolve();
+        }).catch(reject);
+      });
     });
   }
 
   remove(key: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.store.removeItem(key).then(() => {
-        this.observer.removed(key);
-        this.broadcastChange({
-          type: 'remove',
-          key,
-        });
-        resolve();
-      }).catch(reject);
+      this.whenStorageIsReady((storage) => {
+        storage.removeItem(key).then(() => {
+          this.observer.removed(key);
+          this.broadcastChange({
+            type: 'remove',
+            key,
+          });
+          resolve();
+        }).catch(reject);
+      });
     });
   }
 
   getKeys(): Promise<string[]> {
-    return this.store.keys();
+    return new Promise((resolve, reject) => {
+      this.whenStorageIsReady((storage) => {
+        storage.keys().then((keys) => {
+          resolve(keys);
+        }).catch(reject);
+      });
+    });
   }
 
   clear(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.getKeys().then((keys) => {
-        keys.forEach((key) => this.observer.removed(key));
-        this.store.clear().then(() => resolve()).catch(reject);
-      }).catch(reject);
+      this.whenStorageIsReady((storage) => {
+        storage.keys().then((keys) => {
+          keys.forEach((key) => this.observer.removed(key));
+          storage.clear().then(() => resolve()).catch(reject);
+        }).catch(reject);
+      });
     });
   }
 
@@ -175,5 +198,26 @@ export class RxStorage implements ReactiveStorage {
 
   private broadcastChange(change: KeyChange) {
     this.channel.postMessage(change);
+  }
+
+  private whenStorageIsReady(cb: (storage: LocalForage) => unknown): void {
+    if (this.storage) {
+      cb(this.storage);
+    } else {
+      if (!this.injector) {
+        if (isDevMode()) {
+          console.error('RxStorage:: For SSR, please provide an Injector instance in the constructor.');
+        }
+      }
+      afterNextRender(() => {
+        if (this.storage) {
+          cb(this.storage);
+        } else {
+          if (isDevMode()) {
+            console.trace('RxStorage:: localforage could not be loaded. Please check if it is installed.');
+          }
+        }
+      }, { injector: this.injector });
+    }
   }
 }

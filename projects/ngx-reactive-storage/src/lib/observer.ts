@@ -1,5 +1,7 @@
-import { Signal, signal, type ValueEqualityFn, WritableSignal } from "@angular/core";
-import { BehaviorSubject, Observable, shareReplay } from "rxjs";
+import type { Signal, WritableSignal } from "@angular/core";
+import { signal, type ValueEqualityFn } from "@angular/core";
+import type { Observable} from "rxjs";
+import { BehaviorSubject, shareReplay } from "rxjs";
 import type { ReactiveStorage } from "./types";
 
 let skipStorageSet = false;
@@ -16,14 +18,14 @@ export class Observer {
    * sets signal value, if observable/signal was requested for this key.
    */
   public set(key: string, value: unknown) {
-    let obs = this.observables.get(key);
+    const obs = this.observables.get(key);
     if (obs) {
       if (obs.getValue() !== value) {
         obs.next(value);
       }
     }
 
-    let s = this.signals.get(key);
+    const s = this.signals.get(key);
     if (s) {
       skipStorageSet = true;
       s.set(value);
@@ -36,12 +38,12 @@ export class Observer {
    * if such observable/signal was requested.
    */
   public removed(key: string) {
-    let obs = this.observables.get(key);
+    const obs = this.observables.get(key);
     if (obs) {
       obs.next(undefined);
     }
 
-    let s = this.signals.get(key);
+    const s = this.signals.get(key);
     if (s) {
       s.set(undefined);
     }
