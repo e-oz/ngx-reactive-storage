@@ -16,7 +16,7 @@ export class RxStorage implements ReactiveStorage {
   private readonly dbName: string;
   private readonly tableName: string;
   private readonly observer = new Observer(this);
-  private readonly channel: BroadcastChannel;
+  private channel?: BroadcastChannel;
   private readonly listener = (event: MessageEvent) => {
     if (event.data && typeof event.data === 'object') {
       const msg = event.data as KeyChange;
@@ -39,15 +39,22 @@ export class RxStorage implements ReactiveStorage {
   constructor(tableName: string = 'table', dbName: string = 'db', private injector?: Injector) {
     this.tableName = tableName || 'table';
     this.dbName = dbName || 'db';
-    this.channel = new BroadcastChannel(this.dbName + '.' + this.tableName);
-    this.channel.addEventListener('message', this.listener, { passive: true });
 
-    if (typeof window === 'undefined' || typeof window.indexedDB === 'undefined') {
-      afterNextRender(() => {
-        this.storage = localforage.createInstance({ name: this.dbName, storeName: this.tableName });
-      }, { injector: this.injector });
-    } else {
+    const init = () => {
       this.storage = localforage.createInstance({ name: this.dbName, storeName: this.tableName });
+      this.channel = new BroadcastChannel(this.dbName + '.' + this.tableName);
+      this.channel.addEventListener('message', this.listener, { passive: true })
+    };
+
+    if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined' || typeof window.indexedDB === 'undefined') {
+      if (!this.injector) {
+        if (isDevMode()) {
+          console.error('RxStorage:: For SSR, please provide an Injector instance in the constructor.');
+        }
+      }
+      afterNextRender(() => init(), { injector: this.injector });
+    } else {
+      init();
     }
   }
 
@@ -192,12 +199,18 @@ export class RxStorage implements ReactiveStorage {
 
   dispose(): void {
     this.observer.dispose();
-    this.channel.removeEventListener('message', this.listener);
-    this.channel.close();
+    if (this.channel) {
+      this.channel.removeEventListener('message', this.listener);
+      this.channel.close();
+    }
   }
 
   private broadcastChange(change: KeyChange) {
-    this.channel.postMessage(change);
+    this.whenStorageIsReady(() => {
+      if (this.channel) {
+        this.channel.postMessage(change);
+      }
+    });
   }
 
   private whenStorageIsReady(cb: (storage: LocalForage) => unknown): void {
