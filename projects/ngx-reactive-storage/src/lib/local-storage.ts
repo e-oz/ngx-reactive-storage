@@ -1,5 +1,5 @@
-import type { Injector } from '@angular/core';
-import { afterNextRender, isDevMode, type Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
+import type { Signal } from '@angular/core';
+import { type ValueEqualityFn, type WritableSignal } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { Observer } from "./observer";
 import type { ReactiveStorage, SignalOptions } from './types';
@@ -20,22 +20,18 @@ export class RxLocalStorage implements ReactiveStorage {
       try {
         const key = this.unprefixed(event.key);
         if (key) {
-          const value = event.newValue == null ? event.newValue : JSON.parse(event.newValue);
+          const value = event.newValue == null ?
+            event.newValue
+            : event.newValue === 'undefined' ? undefined : JSON.parse(event.newValue);
           this.observer.set(key, value);
         }
-      } catch (_) {
-
+      } catch (e) {
+        console.error('RxLocalStorage::listener', e);
       }
     }
   };
 
-  /**
-   * @param tableName - name of the table in DB. Use name of the feature or the component when possible.
-   * @param dbName - DB name. Use application name when possible.
-   * @param delimiter - delimiter between dbName, tableName and key (localStorage only have keys, this way we can separate them by db and tables).
-   * @param injector - pass an Injector instance to make it work with SSR
-   */
-  constructor(tableName: string = 'table', dbName: string = 'db', delimiter: string = '|~:%:^|', private injector?: Injector) {
+  constructor(tableName: string = 'table', dbName: string = 'db', delimiter: string = '|~:%:^|') {
     this.delimiter = delimiter || '|~:%:^|';
     this.dbName = dbName || 'db';
     this.tableName = tableName || 'table';
@@ -43,22 +39,17 @@ export class RxLocalStorage implements ReactiveStorage {
 
   getObservable<T>(key: string): Observable<T | undefined> {
     let value: T | undefined;
-    let obs: Observable<T | undefined> | undefined = undefined;
-    this.whenStorageIsReady((storage) => {
-      const str = storage.getItem(this.prefixed(key));
+    if (typeof localStorage !== 'undefined') {
+      const str = localStorage.getItem(this.prefixed(key));
       if (str !== null) {
         try {
           value = JSON.parse(str);
-          if (obs) { // if this variable is defined, it was async call and initial value was not set
-            this.observer.set(key, value);
-          }
         } catch (_) {
         }
       }
       this.startListening(key);
-    });
-    obs = this.observer.getObservable<T>(key, value);
-    return obs;
+    }
+    return this.observer.getObservable<T>(key, value);
   }
 
   getSignal<T>(key: string): Signal<T | undefined>;
@@ -95,23 +86,17 @@ export class RxLocalStorage implements ReactiveStorage {
     equal?: ValueEqualityFn<T | undefined>;
   }): Signal<T> {
     let value = options?.initialValue;
-    let s: Signal<T> | undefined = undefined;
-
-    this.whenStorageIsReady((storage) => {
-      const str = storage.getItem(this.prefixed(key));
+    if (typeof localStorage !== 'undefined') {
+      const str = localStorage.getItem(this.prefixed(key));
       if (str !== null) {
         try {
           value = JSON.parse(str);
-          if (s) { // if this variable is defined, it was async call and initial value was not set
-            this.observer.set(key, value);
-          }
         } catch (_) {
         }
       }
       this.startListening(key);
-    });
-    s = this.observer.getSignal<T>(key, value, options?.equal);
-    return s;
+    }
+    return this.observer.getSignal<T>(key, value, options?.equal);
   }
 
   getWritableSignal<T>(key: string): WritableSignal<T | undefined>;
@@ -144,29 +129,24 @@ export class RxLocalStorage implements ReactiveStorage {
     equal?: ValueEqualityFn<T | undefined>;
   }): WritableSignal<T> {
     let value = options?.initialValue;
-    let s: WritableSignal<T> | undefined = undefined;
-    this.whenStorageIsReady((storage) => {
-      const str = storage.getItem(this.prefixed(key));
+    if (typeof localStorage !== 'undefined') {
+      const str = localStorage.getItem(this.prefixed(key));
       if (str !== null) {
         try {
           value = JSON.parse(str);
-          if (s) { // if this variable is defined, it was async call and initial value was not set
-            this.observer.set(key, value);
-          }
         } catch (_) {
         }
       }
       this.startListening(key);
-    });
-    s = this.observer.getWritableSignal<T>(key, value, options?.equal);
-    return s;
+    }
+    return this.observer.getWritableSignal<T>(key, value, options?.equal);
   }
 
   get<T = string>(key: string): Promise<T | null | undefined> {
     return new Promise((resolve, reject) => {
-      this.whenStorageIsReady((storage) => {
+      if (typeof localStorage !== 'undefined') {
         try {
-          const str = storage.getItem(this.prefixed(key));
+          const str = localStorage.getItem(this.prefixed(key));
           if (str === null) {
             this.observer.removed(key);
             resolve(str);
@@ -176,47 +156,46 @@ export class RxLocalStorage implements ReactiveStorage {
         } catch (e) {
           reject(e);
         }
-      });
+      } else {
+        resolve(undefined);
+      }
     });
   }
 
   getKeys(): Promise<string[]> {
-    return new Promise((resolve) => {
-      this.whenStorageIsReady((storage) => {
-        resolve(Object.keys(storage).map(
+    return Promise.resolve(
+      typeof localStorage === 'undefined' ? [] :
+        Object.keys(localStorage).map(
           (k) => this.unprefixed(k)
-        ).filter(key => key !== undefined) as string[])
-      });
-    });
+        ).filter(key => key !== undefined) as string[]
+    );
   }
 
   remove(key: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.whenStorageIsReady((storage) => {
-        try {
-          storage.removeItem(this.prefixed(key));
-          this.observer.removed(key);
-          resolve();
-        } catch (e) {
-          reject(e);
-        }
-      });
-    });
+    if (typeof localStorage === 'undefined') {
+      return Promise.resolve();
+    }
+    try {
+      localStorage.removeItem(this.prefixed(key));
+      this.observer.removed(key);
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   set(key: string, value: unknown): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.whenStorageIsReady((storage) => {
-        try {
-          const v = JSON.stringify(value);
-          storage.setItem(this.prefixed(key), v);
-          this.observer.set(key, value);
-          resolve(undefined);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    });
+    if (typeof localStorage === 'undefined') {
+      return Promise.resolve();
+    }
+    try {
+      const v = JSON.stringify(value);
+      localStorage.setItem(this.prefixed(key), v);
+      this.observer.set(key, value);
+      return Promise.resolve(undefined);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   clear(): Promise<void> {
@@ -234,9 +213,7 @@ export class RxLocalStorage implements ReactiveStorage {
     this.observedKeys.clear();
     if (this.isListening) {
       try {
-        if (typeof window !== 'undefined') {
-          window.removeEventListener('storage', this.listener);
-        }
+        window.removeEventListener('storage', this.listener);
       } catch (_) {
       }
     }
@@ -264,34 +241,7 @@ export class RxLocalStorage implements ReactiveStorage {
     this.observedKeys.add(this.prefixed(key));
     if (!this.isListening) {
       this.isListening = true;
-      if (typeof window !== 'undefined') {
-        window.addEventListener('storage', this.listener, { passive: true });
-      } else {
-        afterNextRender(() => {
-          window.addEventListener('storage', this.listener, { passive: true });
-        }, { injector: this.injector });
-      }
-    }
-  }
-
-  private whenStorageIsReady(cb: (storage: Storage) => unknown): void {
-    if (typeof localStorage !== 'undefined') {
-      cb(localStorage);
-    } else {
-      if (!this.injector) {
-        if (isDevMode()) {
-          console.error('RxLocalStorage:: For SSR, please provide an Injector instance in the constructor.');
-        }
-      }
-      afterNextRender(() => {
-        if (typeof localStorage !== 'undefined') {
-          cb(localStorage);
-        } else {
-          if (isDevMode()) {
-            console.trace('RxLocalStorage:: localStorage is undefined in afterNextRender().');
-          }
-        }
-      }, { injector: this.injector });
+      window.addEventListener('storage', this.listener, { passive: true });
     }
   }
 }

@@ -9,7 +9,7 @@ This is caused by a different method of importing the localForge library, and th
 #### New features:
 * SSR is now supported 🎉
 
-You no longer need to wrap storage initialization in `afterNextRender()`. If you require SSR support, you can do so by providing an `Injector` instance in the constructor. If SSR support is not needed in your app, no changes are required.
+You no longer need to wrap storage initialization in `afterNextRender()`.
 
 ### v1.2.2
 Angular 18 is now supported.
