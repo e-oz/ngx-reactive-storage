@@ -1,4 +1,4 @@
-### v2.0.0 (Pre-release) 
+### v2.0.0 
 #### Breaking changes:
 * TypeScript version 5.6+ is required. 
 
