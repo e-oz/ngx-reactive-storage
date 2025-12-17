@@ -2,7 +2,6 @@
 export default {
   displayName: 'ngx-reactive-storage',
   preset: 'jest-preset-angular',
-  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   globals: {  },
   transform: {
     '^.+\\.(ts|mjs|js|html)$': ['jest-preset-angular', {
