@@ -1,4 +1,4 @@
-import { type Signal, type ValueEqualityFn, type WritableSignal } from '@angular/core';
+import { type Signal, type WritableSignal } from '@angular/core';
 import localforage from 'localforage';
 import type { Observable } from 'rxjs';
 import { Observer } from './observer';
@@ -68,35 +68,12 @@ export class RxStorage implements ReactiveStorage {
     return obs;
   }
 
-  getSignal<T>(key: string): Signal<T | undefined>;
-
-  getSignal<T>(key: string, options: SignalOptions & {
-    initialValue: undefined,
-    equal: ValueEqualityFn<T | undefined>;
-  }): Signal<T | undefined>;
-
-  getSignal<T>(key: string, options: SignalOptions & {
-    initialValue: undefined,
-  }): Signal<T | undefined>;
-
-  getSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-  }): Signal<T>;
-
-  getSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-    equal: ValueEqualityFn<T | undefined>;
-  }): Signal<T>;
-
-  getSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-    equal: undefined;
-  }): Signal<T>;
-
-  getSignal<T>(key: string, options?: SignalOptions & {
-    initialValue?: T;
-    equal?: ValueEqualityFn<T | undefined>;
-  }): Signal<T> {
+  // Overloads narrow the return type based on whether `initialValue` is provided:
+  // - without `initialValue` → Signal<T | undefined> (value may not exist in storage yet)
+  // - with `initialValue`    → Signal<T>             (always has a value)
+  getSignal<T>(key: string, options?: SignalOptions<T | undefined> & { initialValue?: undefined }): Signal<T | undefined>;
+  getSignal<T>(key: string, options: SignalOptions<T | undefined> & { initialValue: T }): Signal<T>;
+  getSignal<T>(key: string, options?: SignalOptions<T | undefined> & { initialValue?: T }): Signal<T> {
     const s = this.observer.getSignal<T>(key, options?.initialValue, options?.equal);
     this.get(key).catch((e) => {
       console.error('RxStorage::getSignal', e);
@@ -104,35 +81,12 @@ export class RxStorage implements ReactiveStorage {
     return s;
   }
 
-  getWritableSignal<T>(key: string): WritableSignal<T | undefined>;
-
-  getWritableSignal<T>(key: string, options: SignalOptions & {
-    initialValue: undefined,
-    equal: ValueEqualityFn<T | undefined>;
-  }): WritableSignal<T | undefined>;
-
-  getWritableSignal<T>(key: string, options: SignalOptions & {
-    initialValue: undefined,
-  }): WritableSignal<T | undefined>;
-
-  getWritableSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-  }): WritableSignal<T>;
-
-  getWritableSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-    equal: ValueEqualityFn<T | undefined>;
-  }): WritableSignal<T>;
-
-  getWritableSignal<T>(key: string, options: SignalOptions & {
-    initialValue: T;
-    equal: undefined;
-  }): WritableSignal<T>;
-
-  getWritableSignal<T>(key: string, options?: SignalOptions & {
-    initialValue?: T;
-    equal?: ValueEqualityFn<T | undefined>;
-  }): WritableSignal<T> {
+  // Overloads narrow the return type based on whether `initialValue` is provided:
+  // - without `initialValue` → WritableSignal<T | undefined>
+  // - with `initialValue`    → WritableSignal<T>
+  getWritableSignal<T>(key: string, options?: SignalOptions<T | undefined> & { initialValue?: undefined }): WritableSignal<T | undefined>;
+  getWritableSignal<T>(key: string, options: SignalOptions<T | undefined> & { initialValue: T }): WritableSignal<T>;
+  getWritableSignal<T>(key: string, options?: SignalOptions<T | undefined> & { initialValue?: T }): WritableSignal<T> {
     const s = this.observer.getWritableSignal<T>(key, options?.initialValue, options?.equal);
     this.get(key).catch((e) => {
       console.error('RxStorage::getWritableSignal', e);

@@ -1,3 +1,10 @@
+## 2.0.2
+* Angular v22 is now supported.
+* Documentation in README.md.
+
+## 2.0.2
+Angular v21 is now supported.
+
 ## v2.0.1 
 Angular v20 is now supported.
 
