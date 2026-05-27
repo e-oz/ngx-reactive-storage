@@ -1,4 +1,7 @@
-## 2.0.2
+## 2.0.4
+Improve the documentation.
+
+## 2.0.3
 * Angular v22 is now supported.
 * Documentation in README.md.
 

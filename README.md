@@ -167,15 +167,14 @@ Documentation
   - [Custom equality function](#custom-equality-function)
   - [Idempotent creation and coexistence](#idempotent-creation-and-coexistence)
 - [Cross-Tab Synchronization](#cross-tab-synchronization)
-- [Usage in Angular](#usage-in-angular)
-  - [As a global (singleton) service](#as-a-global-singleton-service)
-  - [As a feature-level service](#as-a-feature-level-service)
-  - [Using signals in a component template](#using-signals-in-a-component-template)
-  - [Using observables in a component template](#using-observables-in-a-component-template)
-  - [Two-way binding with writable signals](#two-way-binding-with-writable-signals)
-  - [Reacting to changes with `createEffect`](#reacting-to-changes-with-createeffect)
+- [As a global (singleton) service](#as-a-global-singleton-service)
+- [As a feature-level service](#as-a-feature-level-service)
+- [Using signals in a component template](#using-signals-in-a-component-template)
+- [Two-way binding with writable signals](#two-way-binding-with-writable-signals)
 - [SSR Compatibility](#ssr-compatibility)
 - [Cleanup and Disposal](#cleanup-and-disposal)
+  - [Disposing observers — `dispose()`](#disposing-observers--dispose)
+  - [Clearing stored data — `clear()`](#clearing-stored-data--clear)
 - [Storing Complex Data](#storing-complex-data)
 - [Recipes](#recipes)
   - [Persisted user preferences](#persisted-user-preferences)
@@ -262,9 +261,9 @@ All read/write methods return `Promise`s, making the API consistent across both 
 ### Set a value
 
 ```ts
-await storage.set("theme", "dark");
-await storage.set("counter", 42);
-await storage.set("user", { name: "Alice", role: "admin" });
+storage.set("theme", "dark");
+storage.set("counter", 42);
+storage.set("user", { name: "Alice", role: "admin" });
 ```
 
 Any JSON-serializable value can be stored. With `RxStorage` (IndexedDB), binary data like `ArrayBuffer` and `Blob` are also supported.
@@ -333,7 +332,7 @@ theme$.subscribe((value) => {
 });
 
 // Later:
-await storage.set("theme", "dark");
+storage.set("theme", "dark");
 // Console: "Theme changed: dark"
 
 await storage.remove("theme");
@@ -352,7 +351,7 @@ const theme$ = storage.getObservable<string>("theme");
 theme$.subscribe((v) => console.log("Subscriber A:", v));
 theme$.subscribe((v) => console.log("Subscriber B:", v));
 
-await storage.set("theme", "light");
+storage.set("theme", "light");
 // Both subscribers receive "light"
 ```
 
@@ -371,7 +370,7 @@ const theme: Signal<string | undefined> = storage.getSignal<string>("theme");
 
 console.log(theme()); // undefined (no value stored yet)
 
-await storage.set("theme", "dark");
+storage.set("theme", "dark");
 console.log(theme()); // "dark"
 ```
 
@@ -385,7 +384,7 @@ import type { WritableSignal } from "@angular/core";
 const counter: WritableSignal<number | undefined> = storage.getWritableSignal<number>("counter");
 
 // Reading from storage → signal:
-await storage.set("counter", 10);
+storage.set("counter", 10);
 console.log(counter()); // 10
 
 // Writing to signal → storage:
@@ -484,7 +483,7 @@ You can also observe the same key with **both** an observable and a signal simul
 const theme$ = storage.getObservable<string>("theme");
 const theme = storage.getSignal<string>("theme");
 
-await storage.set("theme", "dark");
+storage.set("theme", "dark");
 // theme$ emits "dark", theme() returns "dark"
 ```
 
@@ -507,7 +506,7 @@ const theme = storage.getSignal<string>("theme");
 
 // Tab B
 const storage = new RxStorage("settings", "my-app");
-await storage.set("theme", "dark");
+storage.set("theme", "dark");
 
 // Tab A: theme() is now "dark" — updated automatically!
 ```
@@ -515,8 +514,6 @@ await storage.set("theme", "dark");
 No additional setup is needed. Cross-tab sync works out of the box for every key that is being observed (via `getObservable()`, `getSignal()`, or `getWritableSignal()`).
 
 ---
-
-## Usage in Angular
 
 ### As a global (singleton) service
 
@@ -598,25 +595,6 @@ export class GreetingComponent {
 
 Because the signal is reactive, the template updates automatically when the stored value changes — even from another tab.
 
-### Using observables in a component template
-
-```ts
-@Component({
-  selector: "app-notification-count",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe],
-  template: `
-    @if (count$ | async; as count) {
-      <span class="badge">{{ count }}</span>
-    }
-  `,
-})
-export class NotificationCountComponent {
-  private readonly storage = inject(AppStorageService);
-  protected readonly count$ = this.storage.cache.getObservable<number>("unread-count");
-}
-```
-
 ### Two-way binding with writable signals
 
 `getWritableSignal()` is particularly useful when you want a form control to persist its value:
@@ -625,16 +603,11 @@ export class NotificationCountComponent {
 @Component({
   selector: "app-font-size-picker",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule],
   template: `
     <label>
       Font size
-      <input
-        type="range"
-        min="12"
-        max="24"
-        [value]="fontSize()"
-        (input)="onFontSizeChange($event)"
-      />
+      <input type="range" min="12" max="24" [(ngModel)]="fontSize" />
       <span>{{ fontSize() }}px</span>
     </label>
   `,
@@ -643,33 +616,6 @@ export class FontSizePickerComponent {
   private readonly storage = new RxLocalStorage("preferences", "my-app");
   protected readonly fontSize = this.storage.getWritableSignal<number>("font-size", {
     initialValue: 16,
-  });
-
-  protected onFontSizeChange(event: Event): void {
-    const value = +(event.target as HTMLInputElement).value;
-    this.fontSize.set(value);
-    // Automatically persisted to localStorage!
-  }
-}
-```
-
-### Reacting to changes with `createEffect`
-
-When you need to perform side effects in response to storage changes, use `createEffect`:
-
-```ts
-import { createEffect } from "ngx-collection";
-
-@Component({ /* ... */ })
-export class ThemeComponent {
-  private readonly storage = inject(AppStorageService);
-  protected readonly theme = this.storage.settings.getSignal<string>("theme", {
-    initialValue: "system",
-  });
-
-  private readonly applyTheme = createEffect(() => {
-    const theme = this.theme();
-    document.documentElement.setAttribute("data-theme", theme);
   });
 }
 ```
@@ -693,17 +639,11 @@ This means your components can call storage methods unconditionally without `if 
 
 ## Cleanup and Disposal
 
-Call `dispose()` when a storage instance is no longer needed. This clears all internal references to observables and signals, and removes cross-tab event listeners.
+### Disposing observers — `dispose()`
 
-```ts
-const storage = new RxStorage("temp", "my-app");
+`dispose()` is optional and rarely needed. It removes in-memory references to observables and signals and stops cross-tab synchronization (BroadcastChannel / StorageEvent listeners). The underlying data in IndexedDB or localStorage is **not** deleted.
 
-// ... use the storage ...
-
-storage.dispose();
-```
-
-For Angular components with feature-level or local storage, call `dispose()` in `ngOnDestroy` (or use `DestroyRef`):
+The main use case is stopping cross-tab sync for a storage instance that is no longer relevant — for example, a feature-level storage tied to a component's lifetime:
 
 ```ts
 export class MyComponent {
@@ -716,7 +656,17 @@ export class MyComponent {
 }
 ```
 
-> After calling `dispose()`, the observables and signals created by this storage instance will no longer receive updates. The underlying data in IndexedDB or localStorage is **not** deleted — only the in-memory observers are removed.
+> After calling `dispose()`, the observables and signals created by this storage instance will no longer receive updates.
+
+### Clearing stored data — `clear()`
+
+To actually delete all data in the current table, use `clear()`:
+
+```ts
+await storage.clear();
+```
+
+All keys in the current table are removed, and every observing signal and observable receives `undefined`. Keys in other tables or databases are not affected.
 
 ---
 
@@ -726,24 +676,26 @@ Both backends can store any JSON-serializable data: strings, numbers, booleans, 
 
 ```ts
 // Primitive values
-await storage.set("count", 42);
-await storage.set("enabled", true);
-await storage.set("name", "Alice");
+storage.set("count", 42);
+storage.set("enabled", true);
+storage.set("name", "Alice");
 
 // Objects
-await storage.set("user", { name: "Alice", roles: ["admin", "editor"] });
+storage.set("user", { name: "Alice", roles: ["admin", "editor"] });
 
 // Arrays
-await storage.set("recent-ids", [101, 102, 103]);
+storage.set("recent-ids", [101, 102, 103]);
 
 // Nested structures
-await storage.set("config", {
+storage.set("config", {
   display: { theme: "dark", density: "compact" },
   notifications: { email: true, push: false },
 });
 ```
 
 **IndexedDB** (`RxStorage`) additionally supports `Blob`, `File`, `ArrayBuffer`, `Float32Array`, and other structured-clone-compatible types — these cannot be stored in `localStorage`.
+
+> **Note:** Circular references are not supported (same limitation as `JSON.stringify`) and will cause an exception.
 
 Retrieve with proper typing:
 
@@ -819,7 +771,7 @@ export class ProductCacheService {
   }
 
   async cacheProduct(id: string, product: Product): Promise<void> {
-    await this.storage.set(`product-${id}`, product);
+    this.storage.set(`product-${id}`, product);
   }
 
   async invalidate(id: string): Promise<void> {
@@ -879,6 +831,8 @@ export class SettingsStorageService {
 }
 ```
 
+Note that each backend stores data independently — switching from `RxStorage` to `RxLocalStorage` (or vice versa) does not migrate existing data. The data in IndexedDB and localStorage are separate.
+
 This is also useful for testing — you can provide a different implementation (or the same class with a test-specific database name) without touching the component code:
 
 ```ts
@@ -902,7 +856,7 @@ const scheme = JSON.parse(localStorage.getItem("color-scheme") ?? '""');
 
 // After:
 const storage = new RxLocalStorage("settings", "my-app");
-await storage.set("color-scheme", "dark");
+storage.set("color-scheme", "dark");
 const scheme = await storage.get<string>("color-scheme");
 ```
 
