@@ -1,3 +1,23 @@
+## 2.1.0
+### Bug fixes:
+* `getWritableSignal()` now persists writes even when `getSignal()` was called first for the same key (previously the returned signal silently stopped writing to the storage).
+* `remove()`, `clear()`, and `get()` of a missing key no longer re-create the key when it is observed via a writable signal.
+* Repeated `getSignal()` calls with `initialValue` no longer overwrite the current value of an existing signal (and no longer write `initialValue` into the storage when the key is observed via a writable signal).
+* Repeated `getObservable()` calls no longer push a spurious `undefined` (`RxStorage`) or a duplicate value (`RxLocalStorage`) to existing subscribers.
+* `RxLocalStorage`: `set(key, undefined)` no longer corrupts the key — `get()` now resolves with `undefined` instead of rejecting with a JSON parse error.
+* `RxStorage`: `clear()` is now broadcast to other tabs — their observed signals and observables receive `undefined`.
+* A throwing custom `equal()` function no longer permanently disables storage persistence for writable signals.
+
+### Behavior changes:
+* Signals and observables now always deliver `T | undefined`, as declared: a stored `null` and a cross-tab removal are observed as `undefined` (previously `null` could leak through). `get()` still returns `null` for stored `null` and missing keys.
+* `RxLocalStorage`: keys containing the delimiter now throw an error (or return a rejected promise) instead of silently corrupting the table namespace.
+
+### Documentation:
+* `dispose()` is documented as final: a disposed instance must not be reused — cross-tab synchronization is not re-established. Create a new instance instead.
+
+### Tests:
+* The `RxStorage` test suite now actually runs on IndexedDB (fake-indexeddb was previously installed after localforage had already fallen back to its localStorage driver).
+
 ## 2.0.4
 Improve the documentation.
 

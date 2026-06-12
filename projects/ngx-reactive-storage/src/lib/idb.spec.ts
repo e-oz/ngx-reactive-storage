@@ -1,6 +1,17 @@
+import { deserialize, serialize } from 'node:v8';
+
+// jest-environment-jsdom does not provide structuredClone, which fake-indexeddb requires
+if (typeof globalThis.structuredClone === 'undefined') {
+  (globalThis as any).structuredClone = (value: unknown) => deserialize(serialize(value));
+}
+
+// fake-indexeddb must be imported before './idb' (which imports localforage):
+// localforage captures the indexedDB global at module-evaluation time and
+// silently falls back to its localStorage driver when it is missing.
+import 'fake-indexeddb/auto';
+import localforage from 'localforage';
 import { Observable } from "rxjs";
 import { RxStorage } from './idb';
-import 'fake-indexeddb/auto';
 
 class BCMock {
   addEventListener() {
@@ -35,6 +46,11 @@ describe('IdbStorage', () => {
 
   it('should create an instance of the IdbStorage class', () => {
     expect(storage).toBeInstanceOf(RxStorage);
+  });
+
+  it('should run on the IndexedDB driver', async () => {
+    await storage.set('driver-check', 'value');
+    expect(storage['storage']?.driver()).toBe(localforage.INDEXEDDB);
   });
 
   it('should set and get a value', async () => {
@@ -147,6 +163,8 @@ describe('IdbStorage', () => {
 
     ws.set(value);
     expect(ws()).toStrictEqual(value);
+    // the storage write behind a signal write is asynchronous for IndexedDB
+    await new Promise(resolve => setTimeout(resolve, 50));
     expect(await storage.get(key)).toStrictEqual(value);
 
     ws.update((val) => {
@@ -155,6 +173,7 @@ describe('IdbStorage', () => {
     });
 
     expect(ws()).toStrictEqual(newValue);
+    await new Promise(resolve => setTimeout(resolve, 50));
     expect(await storage.get(key)).toStrictEqual(newValue);
     await storage.remove(key);
     expect(ws()).toStrictEqual(undefined);
@@ -167,7 +186,19 @@ describe('IdbStorage', () => {
     expect(ws()).toBeUndefined();
     ws.set(value);
     expect(ws()).toBe(value);
+    // the storage write behind a signal write is asynchronous for IndexedDB
+    await new Promise(resolve => setTimeout(resolve, 50));
     expect(await storage.get(key)).toBe(value);
+  });
+
+  it('should not resurrect a removed key observed by a writable signal', async () => {
+    const storage = new RxStorage('resurrectTable', 'resurrectDb');
+    const ws = storage.getWritableSignal<string>('k');
+    await storage.set('k', 'v');
+    await storage.remove('k');
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(ws()).toBeUndefined();
+    expect(await storage.getKeys()).toEqual([]);
   });
 
   describe('getKeys', () => {
@@ -219,6 +250,26 @@ describe('IdbStorage', () => {
   });
 
   describe('getSignal options', () => {
+    it('should not overwrite the current value when getSignal() is called again with initialValue', async () => {
+      const key = 'signal-reinit';
+      const s1 = storage.getSignal<string>(key, { initialValue: 'init' });
+      await storage.set(key, 'stored');
+      expect(s1()).toBe('stored');
+      // e.g. a second component starts observing the same key:
+      storage.getSignal<string>(key, { initialValue: 'init' });
+      expect(s1()).toBe('stored');
+    });
+
+    it('should not write initialValue into the storage when the key is observed by a writable signal', async () => {
+      const key = 'signal-init-ws';
+      await storage.set(key, 'stored');
+      storage.getWritableSignal<string>(key);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      storage.getSignal<string>(key, { initialValue: 'init' });
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(await storage.get(key)).toBe('stored');
+    });
+
     it('should use both initialValue and equal together', async () => {
       const key = 'signal-init-equal';
       const equal = (a: string | undefined, b: string | undefined) => {
@@ -263,6 +314,8 @@ describe('IdbStorage', () => {
       expect(ws()).toBe('hi');
       ws.set('bye');
       expect(ws()).toBe('bye');
+      // the storage write behind a signal write is asynchronous for IndexedDB
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(await storage.get(key)).toBe('bye');
     });
 
@@ -308,6 +361,16 @@ describe('IdbStorage', () => {
       expect(result1).toBe('value');
       expect(result2).toBe('value');
     });
+
+    it('should persist writes when getSignal() was called before getWritableSignal()', async () => {
+      const key = 'ws-after-signal';
+      const ro = storage.getSignal<string>(key);
+      const ws = storage.getWritableSignal<string>(key);
+      ws.set('v');
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(ro()).toBe('v');
+      expect(await storage.get(key)).toBe('v');
+    });
   });
 
   describe('observable and signal coexistence', () => {
@@ -351,6 +414,19 @@ describe('IdbStorage', () => {
       await new Promise(resolve => setTimeout(resolve, 50));
       const nonUndefinedValues = values.filter(v => v !== undefined);
       expect(nonUndefinedValues).toEqual(['a', 'b']);
+    });
+
+    it('should not re-emit to existing subscribers when getObservable() is called again', async () => {
+      const key = 'obs-recall';
+      const obs = storage.getObservable<string>(key);
+      await storage.set(key, 'v');
+      const emissions: (string | undefined)[] = [];
+      obs.subscribe((val) => { emissions.push(val); });
+      expect(emissions).toStrictEqual(['v']);
+      storage.getObservable<string>(key);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      // toStrictEqual: plain toEqual would ignore an `undefined` array item
+      expect(emissions).toStrictEqual(['v']);
     });
   });
 
@@ -429,6 +505,29 @@ describe('IdbStorage', () => {
       }
     });
 
+    it('should call postMessage on clear', async () => {
+      const storage = new RxStorage('clearBcTable', 'clearBcDb');
+      await storage.set('k', 'v');
+      const channel = storage['channel'];
+      if (channel) {
+        const postSpy = jest.spyOn(channel, 'postMessage');
+        await storage.clear();
+        expect(postSpy).toHaveBeenCalledWith({ type: 'clear' });
+      }
+    });
+
+    it('should update observed signals when listener receives a clear message', async () => {
+      const key = 'bc-listen-clear';
+      const s = storage.getSignal<string>(key);
+      await storage.set(key, 'value');
+      expect(s()).toBe('value');
+      const listener = storage['listener'];
+      listener(new MessageEvent('message', {
+        data: { type: 'clear' }
+      }));
+      expect(s()).toBeUndefined();
+    });
+
     it('should update signal when listener receives a set message', async () => {
       const key = 'bc-listen-set';
       const s = storage.getSignal<string>(key);
@@ -500,6 +599,16 @@ describe('IdbStorage', () => {
       await storage.set(key, null);
       const result = await storage.get(key);
       expect(result).toBeNull();
+    });
+
+    it('should observe a stored null as undefined', async () => {
+      const key = 'edge-null-sig';
+      const s = storage.getSignal<string>(key);
+      await storage.set(key, 'v');
+      expect(s()).toBe('v');
+      await storage.set(key, null);
+      expect(s()).toBeUndefined();
+      expect(await storage.get(key)).toBeNull();
     });
 
     it('should handle undefined values', async () => {

@@ -59,6 +59,10 @@ export type ReactiveStorage = {
 
   /**
    * Removes links to observables and signals; removes event listeners.
+   * A disposed instance must not be reused: previously created signals and
+   * observables will no longer receive updates, and cross-tab synchronization
+   * is not re-established for signals or observables requested after disposal.
+   * Create a new instance if the storage is needed again.
    */
   dispose(): void;
 }

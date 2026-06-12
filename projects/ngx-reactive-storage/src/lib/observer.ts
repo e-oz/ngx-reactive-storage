@@ -4,20 +4,28 @@ import type { Observable} from "rxjs";
 import { BehaviorSubject, shareReplay } from "rxjs";
 import type { ReactiveStorage } from "./types";
 
-let skipStorageSet = false;
-
 export class Observer {
   constructor(private readonly storage: ReactiveStorage) {
   }
 
   private readonly observables = new Map<string, BehaviorSubject<unknown>>();
   private readonly signals = new Map<string, WritableSignal<unknown>>();
+  private readonly patchedSignals = new WeakSet<object>();
+  // While true, the patched set()/update() of writable signals must not write
+  // to the storage: the value is being applied FROM the storage.
+  private skipStorageSet = false;
 
   /**
    * Pushes new value to observable (if it's not equal to previous),
    * sets signal value, if observable/signal was requested for this key.
+   *
+   * `null` is normalized to `undefined`: observables and signals only
+   * expose `T | undefined` values.
    */
   public set(key: string, value: unknown) {
+    if (value === null) {
+      value = undefined;
+    }
     const obs = this.observables.get(key);
     if (obs) {
       if (obs.getValue() !== value) {
@@ -27,9 +35,12 @@ export class Observer {
 
     const s = this.signals.get(key);
     if (s) {
-      skipStorageSet = true;
-      s.set(value);
-      skipStorageSet = false;
+      this.skipStorageSet = true;
+      try {
+        s.set(value);
+      } finally {
+        this.skipStorageSet = false;
+      }
     }
   }
 
@@ -45,8 +56,21 @@ export class Observer {
 
     const s = this.signals.get(key);
     if (s) {
-      s.set(undefined);
+      this.skipStorageSet = true;
+      try {
+        s.set(undefined);
+      } finally {
+        this.skipStorageSet = false;
+      }
     }
+  }
+
+  /**
+   * Pushes `undefined` to every observable/signal that was requested.
+   */
+  public cleared() {
+    const keys = new Set<string>([...this.observables.keys(), ...this.signals.keys()]);
+    keys.forEach((key) => this.removed(key));
   }
 
   /**
@@ -57,11 +81,8 @@ export class Observer {
   public getObservable<T>(key: string, initialValue: unknown): Observable<T | undefined> {
     let obs = this.observables.get(key);
     if (!obs) {
-      obs = new BehaviorSubject<unknown>(undefined);
+      obs = new BehaviorSubject<unknown>(initialValue ?? undefined);
       this.observables.set(key, obs);
-    }
-    if (initialValue !== null) {
-      obs.next(initialValue);
     }
     return obs.pipe(
       shareReplay({ refCount: true, bufferSize: 1 })
@@ -79,11 +100,8 @@ export class Observer {
   public getSignal<T>(key: string, initialValue?: T, equal?: ValueEqualityFn<T | undefined>): Signal<T> | Signal<T | undefined> {
     let s = this.signals.get(key) as WritableSignal<T | undefined>;
     if (!s) {
-      s = signal<T | undefined>(initialValue, { equal });
+      s = signal<T | undefined>(initialValue ?? undefined, { equal });
       this.signals.set(key, s);
-    }
-    if (initialValue !== undefined) {
-      s.set(initialValue);
     }
     return s.asReadonly();
   }
@@ -94,22 +112,27 @@ export class Observer {
   public getWritableSignal<T>(key: string, initialValue?: T, equal?: ValueEqualityFn<T | undefined>): WritableSignal<T> | WritableSignal<T | undefined> {
     let s = this.signals.get(key) as WritableSignal<T | undefined>;
     if (!s) {
-      s = signal<T | undefined>(initialValue, { equal });
+      s = signal<T | undefined>(initialValue ?? undefined, { equal });
+      this.signals.set(key, s);
+    }
+    // The signal might have been created by getSignal() — its set() and update()
+    // are patched here, on the first getWritableSignal() call for this key.
+    if (!this.patchedSignals.has(s)) {
+      this.patchedSignals.add(s);
       const srcSet = s.set;
       s.set = (value: T) => {
-        if (!skipStorageSet) {
+        if (!this.skipStorageSet) {
           this.storage.set(key, value).catch(console?.error);
         }
         srcSet(value);
       }
       s.update = (updateFn: (value: T | undefined) => T | undefined) => {
         const value = updateFn(s());
-        if (!skipStorageSet) {
+        if (!this.skipStorageSet) {
           this.storage.set(key, value).catch(console?.error);
         }
         srcSet(value);
       }
-      this.signals.set(key, s);
     }
     return s;
   }

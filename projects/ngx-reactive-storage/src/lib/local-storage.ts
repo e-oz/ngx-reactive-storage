@@ -20,10 +20,13 @@ export class RxLocalStorage implements ReactiveStorage {
       try {
         const key = this.unprefixed(event.key);
         if (key) {
-          const value = event.newValue == null ?
-            event.newValue
-            : event.newValue === 'undefined' ? undefined : JSON.parse(event.newValue);
-          this.observer.set(key, value);
+          if (event.newValue == null) {
+            // the key was removed in another tab
+            this.observer.removed(key);
+          } else {
+            const value = event.newValue === 'undefined' ? undefined : JSON.parse(event.newValue);
+            this.observer.set(key, value);
+          }
         }
       } catch (e) {
         console.error('RxLocalStorage::listener', e);
@@ -41,7 +44,7 @@ export class RxLocalStorage implements ReactiveStorage {
     let value: T | undefined;
     if (typeof localStorage !== 'undefined') {
       const str = localStorage.getItem(this.prefixed(key));
-      if (str !== null) {
+      if (str !== null && str !== 'undefined') {
         try {
           value = JSON.parse(str);
         } catch (_) {
@@ -61,7 +64,7 @@ export class RxLocalStorage implements ReactiveStorage {
     let value = options?.initialValue;
     if (typeof localStorage !== 'undefined') {
       const str = localStorage.getItem(this.prefixed(key));
-      if (str !== null) {
+      if (str !== null && str !== 'undefined') {
         try {
           value = JSON.parse(str);
         } catch (_) {
@@ -81,7 +84,7 @@ export class RxLocalStorage implements ReactiveStorage {
     let value = options?.initialValue;
     if (typeof localStorage !== 'undefined') {
       const str = localStorage.getItem(this.prefixed(key));
-      if (str !== null) {
+      if (str !== null && str !== 'undefined') {
         try {
           value = JSON.parse(str);
         } catch (_) {
@@ -100,6 +103,11 @@ export class RxLocalStorage implements ReactiveStorage {
           if (str === null) {
             this.observer.removed(key);
             resolve(str);
+            return;
+          }
+          if (str === 'undefined') {
+            this.observer.removed(key);
+            resolve(undefined);
             return;
           }
           resolve(JSON.parse(str));
@@ -140,7 +148,10 @@ export class RxLocalStorage implements ReactiveStorage {
     }
     try {
       const v = JSON.stringify(value);
-      localStorage.setItem(this.prefixed(key), v);
+      // JSON.stringify(undefined) returns undefined, and Storage would coerce it
+      // to the string "undefined" anyway — store it explicitly, the readers
+      // treat this marker as an undefined value.
+      localStorage.setItem(this.prefixed(key), v === undefined ? 'undefined' : v);
       this.observer.set(key, value);
       return Promise.resolve(undefined);
     } catch (e) {
@@ -158,6 +169,11 @@ export class RxLocalStorage implements ReactiveStorage {
     });
   }
 
+  /**
+   * Removes links to observables and signals; removes event listeners.
+   * A disposed instance must not be reused: cross-tab synchronization is
+   * not re-established. Create a new instance instead.
+   */
   dispose() {
     this.observer.dispose();
     this.observedKeys.clear();
@@ -170,6 +186,11 @@ export class RxLocalStorage implements ReactiveStorage {
   }
 
   private prefixed(key: Key): PrefixedKey {
+    // A key containing the delimiter could not be parsed back by unprefixed()
+    // and would corrupt the table namespace.
+    if (key.includes(this.delimiter)) {
+      throw new Error(`RxLocalStorage: key "${key}" must not contain the delimiter "${this.delimiter}"`);
+    }
     return [this.dbName, this.tableName, key].join(this.delimiter) as PrefixedKey;
   }
 

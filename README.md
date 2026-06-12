@@ -105,6 +105,7 @@ export type ReactiveStorage = {
 
   /**
    * Removes links to observables and signals; removes event listeners.
+   * A disposed instance must not be reused — create a new instance instead.
    */
   dispose(): void;
 }
@@ -231,6 +232,9 @@ console.log(lang()); // e.g. "en"
 | `tableName` | `string` | `'table'`    | Logical table name (used to namespace keys)                           |
 | `dbName`    | `string` | `'db'`       | Logical database name (used to namespace keys)                        |
 | `delimiter` | `string` | `'\|~:%:^\|'` | Separator between `dbName`, `tableName`, and `key` in the actual key |
+
+> [!NOTE]
+> Keys must not contain the delimiter — such keys would corrupt the table namespace, so methods throw an error (or return a rejected promise) when they encounter one.
 
 ---
 
@@ -656,7 +660,7 @@ export class MyComponent {
 }
 ```
 
-> After calling `dispose()`, the observables and signals created by this storage instance will no longer receive updates.
+> After calling `dispose()`, the observables and signals created by this storage instance will no longer receive updates. A disposed instance must not be reused: cross-tab synchronization is not re-established for signals or observables requested after `dispose()` — create a new instance instead.
 
 ### Clearing stored data — `clear()`
 
@@ -696,6 +700,8 @@ storage.set("config", {
 **IndexedDB** (`RxStorage`) additionally supports `Blob`, `File`, `ArrayBuffer`, `Float32Array`, and other structured-clone-compatible types — these cannot be stored in `localStorage`.
 
 > **Note:** Circular references are not supported (same limitation as `JSON.stringify`) and will cause an exception.
+
+> **Note:** `get()` returns a stored `null` as `null`, but signals and observables (typed `T | undefined`) deliver both a stored `null` and a removed key as `undefined`.
 
 Retrieve with proper typing:
 

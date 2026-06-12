@@ -554,7 +554,7 @@ describe('LocalStorage', () => {
       expect(sig()).toBeUndefined();
     });
 
-    it('should handle null newValue (key removed externally)', async () => {
+    it('should handle null newValue (key removed externally) as undefined', async () => {
       const storage = new RxLocalStorage();
       const key = 'listener-null';
       const sig = storage.getSignal<string>(key);
@@ -566,7 +566,7 @@ describe('LocalStorage', () => {
         newValue: null,
       }));
       await new Promise(resolve => setTimeout(resolve, 0));
-      expect(sig()).toBeNull();
+      expect(sig()).toBeUndefined();
     });
 
     it('should handle "undefined" string as undefined', async () => {
@@ -727,6 +727,144 @@ describe('LocalStorage', () => {
       const storage = new RxLocalStorage();
       expect(() => storage.dispose()).not.toThrow();
       expect(storage['observedKeys'].size).toBe(0);
+    });
+
+    it('should not resume cross-tab synchronization after dispose (instances must not be reused)', () => {
+      const storage = new RxLocalStorage();
+      storage.getSignal<string>('dispose-reuse-a');
+      storage.dispose();
+      const sig = storage.getSignal<string>('dispose-reuse-b');
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: storage['prefixed']('dispose-reuse-b'),
+        newValue: JSON.stringify('x'),
+      }));
+      expect(sig()).toBeUndefined();
+    });
+  });
+
+  describe('getWritableSignal after getSignal', () => {
+    it('should persist set() when getSignal() was called first for the key', () => {
+      const storage = new RxLocalStorage();
+      const key = 'ws-after-signal';
+      const ro = storage.getSignal<string>(key);
+      const ws = storage.getWritableSignal<string>(key);
+      ws.set('v');
+      expect(ro()).toBe('v');
+      expect(localStorage.getItem(storage['prefixed'](key))).toBe(JSON.stringify('v'));
+    });
+
+    it('should persist update() when getSignal() was called first for the key', async () => {
+      const storage = new RxLocalStorage();
+      const key = 'ws-after-signal-upd';
+      storage.getSignal<number>(key);
+      await storage.set(key, 1);
+      const ws = storage.getWritableSignal<number>(key);
+      ws.update((v) => (v ?? 0) + 1);
+      expect(ws()).toBe(2);
+      expect(localStorage.getItem(storage['prefixed'](key))).toBe(JSON.stringify(2));
+    });
+  });
+
+  describe('writable signal observing a removed key', () => {
+    it('remove() should not resurrect the key', async () => {
+      const storage = new RxLocalStorage();
+      storage.getWritableSignal<string>('resurrect-rm');
+      await storage.set('resurrect-rm', 'v');
+      await storage.remove('resurrect-rm');
+      expect(localStorage.getItem(storage['prefixed']('resurrect-rm'))).toBeNull();
+    });
+
+    it('get() of a missing key should not create the key', async () => {
+      const storage = new RxLocalStorage();
+      storage.getWritableSignal<string>('resurrect-get');
+      await storage.get('resurrect-get');
+      expect(localStorage.getItem(storage['prefixed']('resurrect-get'))).toBeNull();
+    });
+
+    it('clear() should leave the table empty', async () => {
+      const storage = new RxLocalStorage();
+      storage.getWritableSignal<string>('resurrect-clear');
+      await storage.set('resurrect-clear', 'v');
+      await storage.clear();
+      expect(await storage.getKeys()).toEqual([]);
+    });
+  });
+
+  describe('undefined values', () => {
+    it('should store undefined so that get() can read it back', async () => {
+      const storage = new RxLocalStorage();
+      await storage.set('set-undef', undefined);
+      expect(localStorage.getItem(storage['prefixed']('set-undef'))).toBe('undefined');
+      expect(await storage.get('set-undef')).toBeUndefined();
+    });
+  });
+
+  describe('stored null', () => {
+    it('should be observed as undefined, while get() returns null', async () => {
+      const storage = new RxLocalStorage();
+      const sig = storage.getSignal<string>('null-key');
+      await storage.set('null-key', 'v');
+      expect(sig()).toBe('v');
+      await storage.set('null-key', null);
+      expect(sig()).toBeUndefined();
+      expect(await storage.get('null-key')).toBeNull();
+    });
+
+    it('should be read as undefined by signals and observables of a new instance', async () => {
+      const writer = new RxLocalStorage();
+      await writer.set('null-key-2', null);
+
+      const fresh = new RxLocalStorage();
+      const sig = fresh.getSignal('null-key-2');
+      expect(sig()).toBeUndefined();
+      let obsValue: unknown = 'sentinel';
+      fresh.getObservable('null-key-2').subscribe((v) => { obsValue = v; });
+      expect(obsValue).toBeUndefined();
+    });
+  });
+
+  describe('repeated getObservable()', () => {
+    it('should not push a duplicate emission to existing subscribers', async () => {
+      const storage = new RxLocalStorage();
+      await storage.set('obs-recall', 'v');
+      const obs = storage.getObservable<string>('obs-recall');
+      const emissions: (string | undefined)[] = [];
+      obs.subscribe((v) => { emissions.push(v); });
+      expect(emissions).toStrictEqual(['v']);
+      storage.getObservable<string>('obs-recall');
+      // toStrictEqual: plain toEqual would ignore an `undefined` array item
+      expect(emissions).toStrictEqual(['v']);
+    });
+  });
+
+  describe('keys containing the delimiter', () => {
+    it('should reject writes and throw on reads instead of corrupting the table', async () => {
+      const storage = new RxLocalStorage('table1', 'db1', '::');
+      await expect(storage.set('a::b', 'v')).rejects.toThrow();
+      expect(() => storage.getSignal('a::b')).toThrow();
+      expect(await storage.getKeys()).toEqual([]);
+    });
+  });
+
+  describe('throwing equal() function', () => {
+    it('should not disable persistence for other writable signals', async () => {
+      const storage = new RxLocalStorage();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const equal = (a: string | undefined, b: string | undefined) => {
+        if (b === 'boom') {
+          throw new Error('boom');
+        }
+        return a === b;
+      };
+      storage.getWritableSignal<string>('eq-throws', { equal });
+      // equal() throws while the value coming from the storage is applied to the signal:
+      await expect(storage.set('eq-throws', 'boom')).rejects.toThrow('boom');
+
+      const other = storage.getWritableSignal<string>('eq-other');
+      other.set('hello');
+      expect(other()).toBe('hello');
+      expect(localStorage.getItem(storage['prefixed']('eq-other'))).toBe(JSON.stringify('hello'));
+      consoleErrorSpy.mockRestore();
     });
   });
 });

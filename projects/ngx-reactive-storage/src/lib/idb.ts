@@ -8,6 +8,8 @@ type KeyChange = {
   type: 'set' | 'remove';
   key: string;
   value?: unknown;
+} | {
+  type: 'clear';
 };
 
 export class RxStorage implements ReactiveStorage {
@@ -25,6 +27,9 @@ export class RxStorage implements ReactiveStorage {
           break;
         case 'remove':
           this.observer.removed(msg.key);
+          break;
+        case 'clear':
+          this.observer.cleared();
           break;
       }
     }
@@ -149,11 +154,19 @@ export class RxStorage implements ReactiveStorage {
       }
       this.storage.keys().then((keys) => {
         keys.forEach((key) => this.observer.removed(key));
-        this.storage?.clear().then(() => resolve()).catch(reject);
+        this.storage?.clear().then(() => {
+          this.broadcastChange({ type: 'clear' });
+          resolve();
+        }).catch(reject);
       }).catch(reject);
     });
   }
 
+  /**
+   * Removes links to observables and signals; removes event listeners.
+   * A disposed instance must not be reused: cross-tab synchronization is
+   * not re-established. Create a new instance instead.
+   */
   dispose(): void {
     this.observer.dispose();
     if (this.channel) {
