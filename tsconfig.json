@@ -44,6 +44,8 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
+    // The library supports Angular 19+ and uses no v22-only compiler features, so it builds fine with the pinned TypeScript 5.9.x. Bypass the gate that @angular/compiler-cli@22 imposes (it requests TS 6.0).
+    "disableTypeScriptVersionCheck": true
   }
 }

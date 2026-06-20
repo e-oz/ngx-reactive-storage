@@ -27,8 +27,9 @@ class BCMock {
   }
 }
 
-// @ts-ignore
-BroadcastChannel = BCMock;
+// jest-environment-jsdom does not provide BroadcastChannel; assign the mock onto
+// globalThis (a bare `BroadcastChannel = ...` throws ReferenceError in strict-mode ESM).
+(globalThis as any).BroadcastChannel = BCMock;
 
 function readObs<T = unknown>(obs: Observable<T>): T | undefined {
   let v;

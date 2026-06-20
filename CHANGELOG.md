@@ -1,3 +1,7 @@
+## 2.1.1
+### Packaging fix:
+* Fixes `TS2307: Cannot find module 'ngx-reactive-storage' or its corresponding type declarations`.
+
 ## 2.1.0
 ### Bug fixes:
 * `getWritableSignal()` now persists writes even when `getSignal()` was called first for the same key (previously the returned signal silently stopped writing to the storage).
